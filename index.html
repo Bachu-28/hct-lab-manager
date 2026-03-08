@@ -1,0 +1,1627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HCT Lab Manager</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0f1e;
+    --surface: #111827;
+    --surface2: #1a2235;
+    --border: #1e2d45;
+    --accent: #00d4aa;
+    --accent2: #3b82f6;
+    --warn: #f59e0b;
+    --danger: #ef4444;
+    --success: #10b981;
+    --text: #e2e8f0;
+    --text2: #94a3b8;
+    --text3: #64748b;
+    --font: 'DM Sans', sans-serif;
+    --mono: 'DM Mono', monospace;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── LOGIN SCREEN ── */
+  #loginScreen {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg);
+    position: relative;
+    overflow: hidden;
+  }
+
+  #loginScreen::before {
+    content: '';
+    position: absolute;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(0,212,170,0.08) 0%, transparent 70%);
+    top: -100px; left: -100px;
+    pointer-events: none;
+  }
+
+  #loginScreen::after {
+    content: '';
+    position: absolute;
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(59,130,246,0.06) 0%, transparent 70%);
+    bottom: -50px; right: -50px;
+    pointer-events: none;
+  }
+
+  .login-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 48px;
+    width: 420px;
+    position: relative;
+    z-index: 1;
+    animation: fadeUp 0.6s ease;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .login-logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 32px;
+  }
+
+  .logo-icon {
+    width: 44px; height: 44px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+  }
+
+  .logo-text h1 {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.3px;
+  }
+
+  .logo-text p {
+    font-size: 12px;
+    color: var(--text3);
+    font-weight: 400;
+  }
+
+  .login-title {
+    font-size: 26px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    letter-spacing: -0.5px;
+  }
+
+  .login-subtitle {
+    color: var(--text2);
+    font-size: 14px;
+    margin-bottom: 32px;
+  }
+
+  .form-group {
+    margin-bottom: 16px;
+  }
+
+  .form-group label {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text2);
+    margin-bottom: 8px;
+  }
+
+  .form-group input, .form-group select {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 16px;
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .form-group input:focus, .form-group select:focus {
+    border-color: var(--accent);
+  }
+
+  .form-group select option { background: var(--surface2); }
+
+  .btn-primary {
+    width: 100%;
+    background: linear-gradient(135deg, var(--accent), #00b894);
+    color: #0a0f1e;
+    border: none;
+    border-radius: 10px;
+    padding: 13px;
+    font-family: var(--font);
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.1s;
+    margin-top: 8px;
+  }
+
+  .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+  .btn-primary:active { transform: translateY(0); }
+
+  /* ── MAIN APP ── */
+  #app { display: none; min-height: 100vh; }
+
+  /* SIDEBAR */
+  .sidebar {
+    width: 240px;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    position: fixed;
+    top: 0; left: 0;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    z-index: 100;
+    transition: transform 0.3s;
+  }
+
+  .sidebar-header {
+    padding: 24px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .sidebar-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .sidebar-logo .logo-icon {
+    width: 36px; height: 36px;
+    font-size: 16px;
+  }
+
+  .sidebar-logo h2 {
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+  }
+
+  .sidebar-logo p {
+    font-size: 11px;
+    color: var(--text3);
+  }
+
+  .sidebar-nav {
+    flex: 1;
+    padding: 16px 12px;
+    overflow-y: auto;
+  }
+
+  .nav-section-title {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--text3);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 0 8px;
+    margin: 16px 0 8px;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text2);
+    transition: all 0.15s;
+    margin-bottom: 2px;
+  }
+
+  .nav-item:hover { background: var(--surface2); color: var(--text); }
+
+  .nav-item.active {
+    background: rgba(0,212,170,0.1);
+    color: var(--accent);
+  }
+
+  .nav-item .nav-icon { font-size: 16px; width: 20px; text-align: center; }
+
+  .nav-badge {
+    margin-left: auto;
+    background: var(--danger);
+    color: white;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 10px;
+  }
+
+  .sidebar-footer {
+    padding: 16px 20px;
+    border-top: 1px solid var(--border);
+  }
+
+  .user-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .user-avatar {
+    width: 34px; height: 34px;
+    background: linear-gradient(135deg, var(--accent2), var(--accent));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+    color: white;
+  }
+
+  .user-details h4 { font-size: 13px; font-weight: 600; }
+  .user-details p { font-size: 11px; color: var(--text3); }
+
+  /* MAIN CONTENT */
+  .main-content {
+    margin-left: 240px;
+    min-height: 100vh;
+    background: var(--bg);
+  }
+
+  .topbar {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 16px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+  }
+
+  .topbar-left h2 {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+  }
+
+  .topbar-left p {
+    font-size: 12px;
+    color: var(--text3);
+    margin-top: 2px;
+  }
+
+  .topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .btn-icon {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 10px;
+    color: var(--text2);
+    cursor: pointer;
+    font-size: 16px;
+    transition: all 0.15s;
+  }
+
+  .btn-icon:hover { border-color: var(--accent); color: var(--accent); }
+
+  .btn-add {
+    background: linear-gradient(135deg, var(--accent), #00b894);
+    color: #0a0f1e;
+    border: none;
+    border-radius: 8px;
+    padding: 9px 16px;
+    font-family: var(--font);
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: opacity 0.2s;
+  }
+
+  .btn-add:hover { opacity: 0.9; }
+
+  .page-content {
+    padding: 28px;
+  }
+
+  /* STATS CARDS */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s, border-color 0.2s;
+  }
+
+  .stat-card:hover { transform: translateY(-2px); border-color: var(--accent); }
+
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0; right: 0;
+    width: 80px; height: 80px;
+    border-radius: 50%;
+    opacity: 0.06;
+    transform: translate(20px, -20px);
+  }
+
+  .stat-card.total::before { background: var(--accent2); }
+  .stat-card.low::before { background: var(--warn); }
+  .stat-card.expiring::before { background: var(--danger); }
+  .stat-card.ok::before { background: var(--success); }
+
+  .stat-icon {
+    font-size: 22px;
+    margin-bottom: 12px;
+  }
+
+  .stat-value {
+    font-size: 32px;
+    font-weight: 700;
+    font-family: var(--mono);
+    letter-spacing: -1px;
+    margin-bottom: 4px;
+  }
+
+  .stat-card.total .stat-value { color: var(--accent2); }
+  .stat-card.low .stat-value { color: var(--warn); }
+  .stat-card.expiring .stat-value { color: var(--danger); }
+  .stat-card.ok .stat-value { color: var(--success); }
+
+  .stat-label {
+    font-size: 12px;
+    color: var(--text3);
+    font-weight: 500;
+  }
+
+  /* ALERTS */
+  .alerts-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+
+  .alert-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+  }
+
+  .alert-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+
+  .alert-card-title {
+    font-size: 14px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .alert-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 12px;
+    background: var(--surface2);
+    border-radius: 8px;
+    margin-bottom: 8px;
+    font-size: 13px;
+  }
+
+  .alert-item-name { font-weight: 500; }
+  .alert-item-detail { color: var(--text3); font-size: 12px; }
+
+  .badge {
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+
+  .badge-warn { background: rgba(245,158,11,0.15); color: var(--warn); }
+  .badge-danger { background: rgba(239,68,68,0.15); color: var(--danger); }
+  .badge-success { background: rgba(16,185,129,0.15); color: var(--success); }
+  .badge-info { background: rgba(59,130,246,0.15); color: var(--accent2); }
+
+  /* TABLE */
+  .table-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+
+  .table-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .table-title {
+    font-size: 15px;
+    font-weight: 600;
+  }
+
+  .table-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .search-input {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 14px;
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 13px;
+    outline: none;
+    width: 220px;
+    transition: border-color 0.2s;
+  }
+
+  .search-input:focus { border-color: var(--accent); }
+
+  .filter-select {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 12px;
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 13px;
+    outline: none;
+    cursor: pointer;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  thead th {
+    padding: 12px 20px;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text3);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface2);
+    white-space: nowrap;
+  }
+
+  tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background 0.15s;
+    cursor: pointer;
+  }
+
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: var(--surface2); }
+
+  tbody td {
+    padding: 14px 20px;
+    font-size: 13px;
+    vertical-align: middle;
+  }
+
+  .item-name { font-weight: 600; }
+  .item-lab { font-size: 11px; color: var(--text3); margin-top: 2px; }
+
+  .quantity-cell {
+    font-family: var(--mono);
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .quantity-low { color: var(--danger); }
+  .quantity-ok { color: var(--success); }
+
+  .progress-bar {
+    width: 80px;
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-top: 4px;
+  }
+
+  .progress-fill {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 0.3s;
+  }
+
+  .action-btns {
+    display: flex;
+    gap: 6px;
+  }
+
+  .btn-sm {
+    padding: 5px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    color: var(--text2);
+    transition: all 0.15s;
+    font-family: var(--font);
+  }
+
+  .btn-sm:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-sm.danger:hover { border-color: var(--danger); color: var(--danger); }
+
+  /* MODAL */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(4px);
+  }
+
+  .modal-overlay.open { display: flex; animation: fadeIn 0.2s ease; }
+
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 32px;
+    width: 560px;
+    max-width: 95vw;
+    max-height: 90vh;
+    overflow-y: auto;
+    animation: slideUp 0.3s ease;
+  }
+
+  @keyframes slideUp {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+
+  .modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+  }
+
+  .modal-title { font-size: 18px; font-weight: 700; }
+
+  .modal-close {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    width: 32px; height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--text2);
+    font-size: 16px;
+    transition: all 0.15s;
+  }
+
+  .modal-close:hover { border-color: var(--danger); color: var(--danger); }
+
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .form-grid .full-width { grid-column: 1 / -1; }
+
+  .modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+  }
+
+  .btn-cancel {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 20px;
+    color: var(--text2);
+    font-family: var(--font);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .btn-cancel:hover { border-color: var(--text2); color: var(--text); }
+
+  .btn-save {
+    background: linear-gradient(135deg, var(--accent), #00b894);
+    color: #0a0f1e;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 24px;
+    font-family: var(--font);
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+
+  .btn-save:hover { opacity: 0.9; }
+
+  /* LOADING */
+  .loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 60px;
+    color: var(--text3);
+    gap: 12px;
+  }
+
+  .spinner {
+    width: 20px; height: 20px;
+    border: 2px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* TOAST */
+  .toast-container {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 300;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .toast {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 18px;
+    font-size: 13px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    animation: toastIn 0.3s ease;
+    min-width: 280px;
+  }
+
+  .toast.success { border-color: var(--success); }
+  .toast.error { border-color: var(--danger); }
+  .toast.warning { border-color: var(--warn); }
+
+  @keyframes toastIn {
+    from { transform: translateX(20px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+  }
+
+  /* EMPTY STATE */
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text3);
+  }
+
+  .empty-state .empty-icon { font-size: 48px; margin-bottom: 16px; }
+  .empty-state h3 { font-size: 16px; color: var(--text2); margin-bottom: 8px; }
+  .empty-state p { font-size: 13px; }
+
+  /* PAGE SECTIONS */
+  .page-section { display: none; }
+  .page-section.active { display: block; }
+
+  /* HISTORY TABLE */
+  .history-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+    transition: background 0.15s;
+  }
+
+  .history-item:hover { background: var(--surface2); }
+
+  .history-icon {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+
+  .history-icon.add { background: rgba(16,185,129,0.15); }
+  .history-icon.deduct { background: rgba(239,68,68,0.15); }
+  .history-icon.update { background: rgba(59,130,246,0.15); }
+
+  .history-details { flex: 1; }
+  .history-details h4 { font-weight: 600; margin-bottom: 2px; }
+  .history-details p { color: var(--text3); font-size: 12px; }
+  .history-time { color: var(--text3); font-size: 11px; white-space: nowrap; }
+
+  /* RESPONSIVE */
+  @media (max-width: 768px) {
+    .sidebar { transform: translateX(-100%); }
+    .main-content { margin-left: 0; }
+    .stats-grid { grid-template-columns: 1fr 1fr; }
+    .alerts-row { grid-template-columns: 1fr; }
+  }
+
+  .divider { height: 1px; background: var(--border); margin: 8px 0; }
+
+  /* Coming soon pages */
+  .coming-soon {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 400px;
+    gap: 16px;
+    color: var(--text3);
+  }
+
+  .coming-soon .cs-icon { font-size: 56px; }
+  .coming-soon h2 { font-size: 22px; color: var(--text2); font-weight: 700; }
+  .coming-soon p { font-size: 14px; max-width: 360px; text-align: center; line-height: 1.6; }
+  .coming-soon .cs-badge {
+    background: rgba(0,212,170,0.1);
+    border: 1px solid rgba(0,212,170,0.2);
+    color: var(--accent);
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+</style>
+</head>
+<body>
+
+<!-- LOGIN SCREEN -->
+<div id="loginScreen">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="logo-icon">🧪</div>
+      <div class="logo-text">
+        <h1>HCT Lab Manager</h1>
+        <p>Higher Colleges of Technology</p>
+      </div>
+    </div>
+    <h2 class="login-title">Welcome back</h2>
+    <p class="login-subtitle">Sign in to access your lab management dashboard</p>
+    <div class="form-group">
+      <label>HCT Email</label>
+      <input type="email" id="loginEmail" placeholder="yourname@hct.ac.ae" value="bpunathil@hct.ac.ae">
+    </div>
+    <div class="form-group">
+      <label>Your Role</label>
+      <select id="loginRole">
+        <option value="Lab Incharge">Lab Incharge</option>
+        <option value="LA">Lab Assistant (LA)</option>
+        <option value="Program Staff">Program Staff</option>
+        <option value="APC">APC</option>
+        <option value="Divisional Chair">Divisional Chair</option>
+        <option value="Campus HS Manager">Campus H&S Manager</option>
+        <option value="Admin">Admin</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Campus</label>
+      <select id="loginCampus">
+        <option value="Abu Dhabi">Abu Dhabi</option>
+        <option value="Dubai">Dubai</option>
+        <option value="Sharjah">Sharjah</option>
+        <option value="Al Ain" selected>Al Ain</option>
+        <option value="Ras Al Khaimah">Ras Al Khaimah</option>
+        <option value="Fujairah">Fujairah</option>
+      </select>
+    </div>
+    <button class="btn-primary" onclick="login()">Access Dashboard →</button>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="app">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">
+        <div class="logo-icon">🧪</div>
+        <div>
+          <h2>Lab Manager</h2>
+          <p>HCT System</p>
+        </div>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-title">Overview</div>
+      <div class="nav-item active" onclick="showPage('dashboard', this)">
+        <span class="nav-icon">📊</span> Dashboard
+      </div>
+
+      <div class="nav-section-title">Inventory</div>
+      <div class="nav-item" onclick="showPage('consumables', this)">
+        <span class="nav-icon">📦</span> Consumables
+        <span class="nav-badge" id="lowStockBadge" style="display:none">!</span>
+      </div>
+      <div class="nav-item" onclick="showPage('equipment', this)">
+        <span class="nav-icon">🔧</span> Equipment
+      </div>
+
+      <div class="nav-section-title">Operations</div>
+      <div class="nav-item" onclick="showPage('maintenance', this)">
+        <span class="nav-icon">🛠️</span> Maintenance
+      </div>
+      <div class="nav-item" onclick="showPage('utilization', this)">
+        <span class="nav-icon">🔬</span> Lab Utilization
+      </div>
+
+      <div class="nav-section-title">Analytics</div>
+      <div class="nav-item" onclick="showPage('reports', this)">
+        <span class="nav-icon">📈</span> Reports
+      </div>
+      <div class="nav-item" onclick="showPage('history', this)">
+        <span class="nav-icon">📋</span> Audit Log
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <div class="user-avatar" id="userAvatar">BP</div>
+        <div class="user-details">
+          <h4 id="userName">Basheer P</h4>
+          <p id="userRole">Lab Incharge</p>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="main-content">
+    <div class="topbar">
+      <div class="topbar-left">
+        <h2 id="pageTitle">Dashboard</h2>
+        <p id="pageSubtitle">Overview of your lab inventory</p>
+      </div>
+      <div class="topbar-right">
+        <button class="btn-icon" onclick="refreshData()" title="Refresh">🔄</button>
+        <button class="btn-add" onclick="openAddModal()" id="addBtn">
+          + Add Item
+        </button>
+      </div>
+    </div>
+
+    <div class="page-content">
+
+      <!-- DASHBOARD PAGE -->
+      <div class="page-section active" id="page-dashboard">
+        <div class="stats-grid">
+          <div class="stat-card total">
+            <div class="stat-icon">📦</div>
+            <div class="stat-value" id="statTotal">—</div>
+            <div class="stat-label">Total Items</div>
+          </div>
+          <div class="stat-card low">
+            <div class="stat-icon">⚠️</div>
+            <div class="stat-value" id="statLow">—</div>
+            <div class="stat-label">Low Stock</div>
+          </div>
+          <div class="stat-card expiring">
+            <div class="stat-icon">⏰</div>
+            <div class="stat-value" id="statExpiring">—</div>
+            <div class="stat-label">Expiring Soon</div>
+          </div>
+          <div class="stat-card ok">
+            <div class="stat-icon">✅</div>
+            <div class="stat-value" id="statOk">—</div>
+            <div class="stat-label">Stock OK</div>
+          </div>
+        </div>
+
+        <div class="alerts-row">
+          <div class="alert-card">
+            <div class="alert-card-header">
+              <div class="alert-card-title">⚠️ Low Stock Alerts</div>
+            </div>
+            <div id="lowStockList"><div class="loading"><div class="spinner"></div> Loading...</div></div>
+          </div>
+          <div class="alert-card">
+            <div class="alert-card-header">
+              <div class="alert-card-title">⏰ Expiring Soon</div>
+            </div>
+            <div id="expiringList"><div class="loading"><div class="spinner"></div> Loading...</div></div>
+          </div>
+        </div>
+
+        <div class="table-card">
+          <div class="table-header">
+            <div class="table-title">Recent Activity</div>
+          </div>
+          <div id="recentActivity">
+            <div class="loading"><div class="spinner"></div> Loading...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CONSUMABLES PAGE -->
+      <div class="page-section" id="page-consumables">
+        <div class="table-card">
+          <div class="table-header">
+            <div class="table-title">Consumables Inventory</div>
+            <div class="table-controls">
+              <input class="search-input" type="text" placeholder="🔍 Search items..." id="searchInput" oninput="filterTable()">
+              <select class="filter-select" id="categoryFilter" onchange="filterTable()">
+                <option value="">All Categories</option>
+                <option value="Chemicals">Chemicals</option>
+                <option value="PPE">PPE</option>
+                <option value="Glassware">Glassware</option>
+                <option value="Medical Consumable">Medical Consumable</option>
+                <option value="Reagents">Reagents</option>
+                <option value="Stationery">Stationery</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+          </div>
+          <div id="consumablesTable">
+            <div class="loading"><div class="spinner"></div> Loading inventory...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- EQUIPMENT PAGE -->
+      <div class="page-section" id="page-equipment">
+        <div class="coming-soon">
+          <div class="cs-icon">🔧</div>
+          <h2>Equipment Module</h2>
+          <p>Track all lab equipment, serial numbers, calibration dates, and maintenance schedules across all campuses.</p>
+          <div class="cs-badge">Coming in Phase 2</div>
+        </div>
+      </div>
+
+      <!-- MAINTENANCE PAGE -->
+      <div class="page-section" id="page-maintenance">
+        <div class="coming-soon">
+          <div class="cs-icon">🛠️</div>
+          <h2>Maintenance Module</h2>
+          <p>Schedule and track preventive maintenance, repairs, and service records for all lab equipment.</p>
+          <div class="cs-badge">Coming in Phase 3</div>
+        </div>
+      </div>
+
+      <!-- UTILIZATION PAGE -->
+      <div class="page-section" id="page-utilization">
+        <div class="coming-soon">
+          <div class="cs-icon">🔬</div>
+          <h2>Lab Utilization Module</h2>
+          <p>Monitor lab usage, booking schedules, and utilization rates across programs and campuses.</p>
+          <div class="cs-badge">Coming in Phase 4</div>
+        </div>
+      </div>
+
+      <!-- REPORTS PAGE -->
+      <div class="page-section" id="page-reports">
+        <div class="coming-soon">
+          <div class="cs-icon">📈</div>
+          <h2>Reports & Analytics</h2>
+          <p>Generate comprehensive reports on inventory, usage, costs, and compliance across all divisions and campuses.</p>
+          <div class="cs-badge">Coming in Phase 5</div>
+        </div>
+      </div>
+
+      <!-- HISTORY / AUDIT LOG PAGE -->
+      <div class="page-section" id="page-history">
+        <div class="table-card">
+          <div class="table-header">
+            <div class="table-title">Audit Log</div>
+          </div>
+          <div id="auditLog">
+            <div class="empty-state">
+              <div class="empty-icon">📋</div>
+              <h3>No activity yet</h3>
+              <p>All stock changes will be recorded here</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<!-- ADD/EDIT MODAL -->
+<div class="modal-overlay" id="itemModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 class="modal-title" id="modalTitle">Add New Item</h3>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="form-grid">
+      <div class="form-group full-width">
+        <label>Item Name *</label>
+        <input type="text" id="f_title" placeholder="e.g. Latex Gloves (Medium)">
+      </div>
+      <div class="form-group">
+        <label>Category *</label>
+        <select id="f_category">
+          <option value="">Select category</option>
+          <option value="Chemicals">Chemicals</option>
+          <option value="PPE">PPE</option>
+          <option value="Glassware">Glassware</option>
+          <option value="Medical Consumable">Medical Consumable</option>
+          <option value="Reagents">Reagents</option>
+          <option value="Stationery">Stationery</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Unit</label>
+        <select id="f_unit">
+          <option value="Box">Box</option>
+          <option value="Bottle">Bottle</option>
+          <option value="Pack">Pack</option>
+          <option value="Piece">Piece</option>
+          <option value="Roll">Roll</option>
+          <option value="Liter">Liter</option>
+          <option value="Kg">Kg</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Current Quantity *</label>
+        <input type="number" id="f_quantity" placeholder="0" min="0">
+      </div>
+      <div class="form-group">
+        <label>Minimum Stock Level</label>
+        <input type="number" id="f_minStock" placeholder="0" min="0">
+      </div>
+      <div class="form-group">
+        <label>Supplier</label>
+        <input type="text" id="f_supplier" placeholder="Supplier name">
+      </div>
+      <div class="form-group">
+        <label>Storage Location</label>
+        <input type="text" id="f_location" placeholder="e.g. Cabinet A, Fridge 1">
+      </div>
+      <div class="form-group">
+        <label>Expiry Date</label>
+        <input type="date" id="f_expiryDate">
+      </div>
+      <div class="form-group">
+        <label>Lot Number</label>
+        <input type="text" id="f_lotNumber" placeholder="e.g. LOT2024001">
+      </div>
+      <div class="form-group">
+        <label>Program</label>
+        <input type="text" id="f_program" placeholder="e.g. Nursing, Medical Lab">
+      </div>
+      <div class="form-group">
+        <label>Lab Name</label>
+        <input type="text" id="f_labName" placeholder="e.g. Skills Lab 1">
+      </div>
+      <div class="form-group full-width">
+        <label>Notes</label>
+        <input type="text" id="f_notes" placeholder="Any additional notes...">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+      <button class="btn-save" onclick="saveItem()">Save Item</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST CONTAINER -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+// ── CONFIGURATION ──
+const CONFIG = {
+  GET_CONSUMABLES_URL: 'https://default55488759d4c94a95ae92ada1488c40.53.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/9892b24146154d02a3955ee9502ac46b/triggers/manual/paths/invoke?api-version=1',
+  SAVE_CONSUMABLE_URL: 'https://default55488759d4c94a95ae92ada1488c40.53.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/cf7d5dc7a69c474bb1331e35c8a0901d/triggers/manual/paths/invoke?api-version=1',
+  GET_STATS_URL: 'https://default55488759d4c94a95ae92ada1488c40.53.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/ea1f243dd2194b3686351c11ea214981/triggers/manual/paths/invoke?api-version=1'
+};
+
+// ── STATE ──
+let currentUser = null;
+let allItems = [];
+let editingId = null;
+let auditLog = [];
+
+// ── LOGIN ──
+function login() {
+  const email = document.getElementById('loginEmail').value;
+  const role = document.getElementById('loginRole').value;
+  const campus = document.getElementById('loginCampus').value;
+
+  if (!email) { showToast('Please enter your email', 'error'); return; }
+
+  currentUser = { email, role, campus, division: 'Health Sciences' };
+
+  const initials = email.split('@')[0].split('.').map(n => n[0].toUpperCase()).join('').slice(0,2);
+  document.getElementById('userAvatar').textContent = initials;
+  document.getElementById('userName').textContent = email.split('@')[0].replace('.', ' ');
+  document.getElementById('userRole').textContent = role;
+
+  // Show/hide add button based on role
+  const canEdit = ['Lab Incharge', 'LA', 'Admin'].includes(role);
+  document.getElementById('addBtn').style.display = canEdit ? 'flex' : 'none';
+
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+
+  loadDashboard();
+}
+
+// ── NAVIGATION ──
+function showPage(page, el) {
+  document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  if (el) el.classList.add('active');
+
+  const titles = {
+    dashboard: ['Dashboard', 'Overview of your lab inventory'],
+    consumables: ['Consumables', 'Manage consumable stock levels'],
+    equipment: ['Equipment', 'Lab equipment registry'],
+    maintenance: ['Maintenance', 'Equipment maintenance tracking'],
+    utilization: ['Lab Utilization', 'Lab usage and booking'],
+    reports: ['Reports & Analytics', 'Insights across all labs'],
+    history: ['Audit Log', 'Complete activity history']
+  };
+
+  if (titles[page]) {
+    document.getElementById('pageTitle').textContent = titles[page][0];
+    document.getElementById('pageSubtitle').textContent = titles[page][1];
+  }
+
+  const showAdd = ['consumables'].includes(page) && ['Lab Incharge', 'LA', 'Admin'].includes(currentUser?.role);
+  document.getElementById('addBtn').style.display = showAdd ? 'flex' : 'none';
+
+  if (page === 'consumables') loadConsumables();
+}
+
+// ── API CALLS ──
+async function callFlow(url, body) {
+  try {
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    if (!res.ok) throw new Error('Flow error: ' + res.status);
+    return await res.json();
+  } catch (err) {
+    console.error('Flow call failed:', err);
+    throw err;
+  }
+}
+
+// ── LOAD DASHBOARD ──
+async function loadDashboard() {
+  try {
+    // Load stats
+    const stats = await callFlow(CONFIG.GET_STATS_URL, {
+      userEmail: currentUser.email,
+      campus: currentUser.campus,
+      division: currentUser.division,
+      role: currentUser.role
+    });
+
+    document.getElementById('statTotal').textContent = stats.totalItems ?? 0;
+    document.getElementById('statLow').textContent = stats.lowStock ?? 0;
+    document.getElementById('statExpiring').textContent = stats.expiringSoon ?? 0;
+    document.getElementById('statOk').textContent = Math.max(0, (stats.totalItems ?? 0) - (stats.lowStock ?? 0) - (stats.expiringSoon ?? 0));
+
+    if ((stats.lowStock ?? 0) > 0) {
+      const badge = document.getElementById('lowStockBadge');
+      badge.style.display = 'inline';
+      badge.textContent = stats.lowStock;
+    }
+
+    // Load consumables for alerts
+    await loadConsumablesData();
+    renderLowStockAlerts();
+    renderExpiringAlerts();
+    renderRecentActivity();
+
+  } catch (err) {
+    showToast('Could not load dashboard data', 'error');
+    // Show demo data
+    document.getElementById('statTotal').textContent = '0';
+    document.getElementById('statLow').textContent = '0';
+    document.getElementById('statExpiring').textContent = '0';
+    document.getElementById('statOk').textContent = '0';
+    document.getElementById('lowStockList').innerHTML = '<div class="empty-state"><div class="empty-icon">✅</div><h3>No alerts</h3><p>All stock levels are fine</p></div>';
+    document.getElementById('expiringList').innerHTML = '<div class="empty-state"><div class="empty-icon">✅</div><h3>No alerts</h3><p>No items expiring soon</p></div>';
+    document.getElementById('recentActivity').innerHTML = '<div class="empty-state"><div class="empty-icon">📋</div><h3>No activity yet</h3><p>Add items to see activity</p></div>';
+  }
+}
+
+async function loadConsumablesData() {
+  try {
+    const data = await callFlow(CONFIG.GET_CONSUMABLES_URL, {
+      userEmail: currentUser.email,
+      campus: currentUser.campus,
+      division: currentUser.division,
+      program: '',
+      labName: '',
+      role: currentUser.role
+    });
+    allItems = data.value || data || [];
+  } catch (err) {
+    allItems = [];
+  }
+}
+
+// ── RENDER ALERTS ──
+function renderLowStockAlerts() {
+  const container = document.getElementById('lowStockList');
+  const lowItems = allItems.filter(i => (i.fields?.Quantity ?? 0) < (i.fields?.MinStockClaims ?? i.fields?.MinStock ?? 0));
+
+  if (lowItems.length === 0) {
+    container.innerHTML = '<div class="empty-state"><div class="empty-icon">✅</div><h3>All stock levels OK</h3></div>';
+    return;
+  }
+
+  container.innerHTML = lowItems.slice(0, 5).map(i => `
+    <div class="alert-item">
+      <div>
+        <div class="alert-item-name">${i.fields?.Title || 'Unknown'}</div>
+        <div class="alert-item-detail">${i.fields?.LabName || i.fields?.Campus || ''}</div>
+      </div>
+      <span class="badge badge-warn">${i.fields?.Quantity ?? 0} left</span>
+    </div>
+  `).join('');
+}
+
+function renderExpiringAlerts() {
+  const container = document.getElementById('expiringList');
+  const today = new Date();
+  const in30 = new Date(); in30.setDate(in30.getDate() + 30);
+
+  const expiring = allItems.filter(i => {
+    if (!i.fields?.ExpiryDate) return false;
+    const d = new Date(i.fields.ExpiryDate);
+    return d <= in30;
+  });
+
+  if (expiring.length === 0) {
+    container.innerHTML = '<div class="empty-state"><div class="empty-icon">✅</div><h3>No items expiring soon</h3></div>';
+    return;
+  }
+
+  container.innerHTML = expiring.slice(0, 5).map(i => {
+    const d = new Date(i.fields.ExpiryDate);
+    const isExpired = d < today;
+    return `
+      <div class="alert-item">
+        <div>
+          <div class="alert-item-name">${i.fields?.Title || 'Unknown'}</div>
+          <div class="alert-item-detail">${d.toLocaleDateString('en-AE')}</div>
+        </div>
+        <span class="badge ${isExpired ? 'badge-danger' : 'badge-warn'}">${isExpired ? 'Expired' : 'Expiring'}</span>
+      </div>
+    `;
+  }).join('');
+}
+
+function renderRecentActivity() {
+  const container = document.getElementById('recentActivity');
+  if (auditLog.length === 0) {
+    container.innerHTML = '<div class="empty-state"><div class="empty-icon">📋</div><h3>No recent activity</h3><p>Actions will appear here</p></div>';
+    return;
+  }
+  container.innerHTML = auditLog.slice(0, 8).map(log => `
+    <div class="history-item">
+      <div class="history-icon ${log.type}">
+        ${log.type === 'add' ? '➕' : log.type === 'deduct' ? '➖' : '✏️'}
+      </div>
+      <div class="history-details">
+        <h4>${log.item}</h4>
+        <p>${log.action} • ${log.user}</p>
+      </div>
+      <div class="history-time">${log.time}</div>
+    </div>
+  `).join('');
+}
+
+// ── CONSUMABLES TABLE ──
+async function loadConsumables() {
+  const container = document.getElementById('consumablesTable');
+  container.innerHTML = '<div class="loading"><div class="spinner"></div> Loading inventory...</div>';
+
+  await loadConsumablesData();
+  renderTable(allItems);
+}
+
+function renderTable(items) {
+  const container = document.getElementById('consumablesTable');
+  const canEdit = ['Lab Incharge', 'LA', 'Admin'].includes(currentUser?.role);
+
+  if (items.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">📦</div>
+        <h3>No items found</h3>
+        <p>Add your first consumable item to get started</p>
+      </div>`;
+    return;
+  }
+
+  const today = new Date();
+  const in30 = new Date(); in30.setDate(in30.getDate() + 30);
+
+  container.innerHTML = `
+    <table>
+      <thead>
+        <tr>
+          <th>Item Name</th>
+          <th>Category</th>
+          <th>Stock Level</th>
+          <th>Unit</th>
+          <th>Expiry Date</th>
+          <th>Location</th>
+          <th>Lot No.</th>
+          ${canEdit ? '<th>Actions</th>' : ''}
+        </tr>
+      </thead>
+      <tbody>
+        ${items.map(i => {
+          const f = i.fields || {};
+          const qty = f.Quantity ?? 0;
+          const min = f.MinStockClaims ?? f.MinStock ?? 0;
+          const isLow = qty < min;
+          const pct = min > 0 ? Math.min(100, (qty / min) * 100) : 100;
+          const expiry = f.ExpiryDate ? new Date(f.ExpiryDate) : null;
+          const isExpired = expiry && expiry < today;
+          const isExpiring = expiry && expiry <= in30 && !isExpired;
+
+          return `
+            <tr onclick="${canEdit ? `editItem('${i.id}')` : ''}">
+              <td>
+                <div class="item-name">${f.Title || '—'}</div>
+                <div class="item-lab">${f.LabName || f.Campus || ''}</div>
+              </td>
+              <td><span class="badge badge-info">${f.Category || '—'}</span></td>
+              <td>
+                <div class="quantity-cell ${isLow ? 'quantity-low' : 'quantity-ok'}">${qty} / ${min}</div>
+                <div class="progress-bar">
+                  <div class="progress-fill" style="width:${pct}%; background:${isLow ? 'var(--danger)' : 'var(--success)'}"></div>
+                </div>
+              </td>
+              <td>${f.Unit || '—'}</td>
+              <td>
+                ${expiry ? `<span class="badge ${isExpired ? 'badge-danger' : isExpiring ? 'badge-warn' : 'badge-success'}">${expiry.toLocaleDateString('en-AE')}</span>` : '—'}
+              </td>
+              <td>${f.Location || '—'}</td>
+              <td><span style="font-family:var(--mono);font-size:12px;color:var(--text3)">${f.LotNumber || '—'}</span></td>
+              ${canEdit ? `
+              <td>
+                <div class="action-btns" onclick="event.stopPropagation()">
+                  <button class="btn-sm" onclick="editItem('${i.id}')">✏️ Edit</button>
+                </div>
+              </td>` : ''}
+            </tr>
+          `;
+        }).join('')}
+      </tbody>
+    </table>`;
+}
+
+function filterTable() {
+  const search = document.getElementById('searchInput').value.toLowerCase();
+  const cat = document.getElementById('categoryFilter').value;
+
+  const filtered = allItems.filter(i => {
+    const f = i.fields || {};
+    const matchSearch = !search || (f.Title || '').toLowerCase().includes(search) || (f.Location || '').toLowerCase().includes(search);
+    const matchCat = !cat || f.Category === cat;
+    return matchSearch && matchCat;
+  });
+
+  renderTable(filtered);
+}
+
+// ── MODAL ──
+function openAddModal() {
+  editingId = null;
+  document.getElementById('modalTitle').textContent = 'Add New Item';
+  clearForm();
+
+  // Pre-fill campus from user
+  document.getElementById('itemModal').classList.add('open');
+}
+
+function editItem(id) {
+  const item = allItems.find(i => i.id == id);
+  if (!item) return;
+
+  editingId = id;
+  document.getElementById('modalTitle').textContent = 'Edit Item';
+
+  const f = item.fields || {};
+  document.getElementById('f_title').value = f.Title || '';
+  document.getElementById('f_category').value = f.Category || '';
+  document.getElementById('f_unit').value = f.Unit || 'Box';
+  document.getElementById('f_quantity').value = f.Quantity ?? '';
+  document.getElementById('f_minStock').value = f.MinStockClaims ?? f.MinStock ?? '';
+  document.getElementById('f_supplier').value = f.Supplier || '';
+  document.getElementById('f_location').value = f.Location || '';
+  document.getElementById('f_expiryDate').value = f.ExpiryDate ? f.ExpiryDate.split('T')[0] : '';
+  document.getElementById('f_lotNumber').value = f.LotNumber || '';
+  document.getElementById('f_program').value = f.Program || '';
+  document.getElementById('f_labName').value = f.LabName || '';
+  document.getElementById('f_notes').value = f.Notes || '';
+
+  document.getElementById('itemModal').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('itemModal').classList.remove('open');
+  editingId = null;
+}
+
+function clearForm() {
+  ['f_title','f_category','f_unit','f_quantity','f_minStock','f_supplier','f_location','f_expiryDate','f_lotNumber','f_program','f_labName','f_notes'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = el.tagName === 'SELECT' ? el.options[0]?.value || '' : '';
+  });
+}
+
+async function saveItem() {
+  const title = document.getElementById('f_title').value.trim();
+  const category = document.getElementById('f_category').value;
+  const quantity = parseInt(document.getElementById('f_quantity').value) || 0;
+
+  if (!title) { showToast('Item name is required', 'error'); return; }
+  if (!category) { showToast('Please select a category', 'error'); return; }
+
+  const payload = {
+    action: editingId ? 'update' : 'add',
+    itemId: editingId || '',
+    title,
+    category,
+    unit: document.getElementById('f_unit').value,
+    quantity,
+    minStock: parseInt(document.getElementById('f_minStock').value) || 0,
+    supplier: document.getElementById('f_supplier').value,
+    location: document.getElementById('f_location').value,
+    campus: currentUser.campus,
+    division: currentUser.division,
+    program: document.getElementById('f_program').value,
+    labName: document.getElementById('f_labName').value,
+    expiryDate: document.getElementById('f_expiryDate').value || null,
+    lotNumber: document.getElementById('f_lotNumber').value,
+    notes: document.getElementById('f_notes').value,
+    performedBy: currentUser.email
+  };
+
+  const saveBtn = document.querySelector('.btn-save');
+  saveBtn.textContent = 'Saving...';
+  saveBtn.disabled = true;
+
+  try {
+    await callFlow(CONFIG.SAVE_CONSUMABLE_URL, payload);
+
+    // Log to audit
+    auditLog.unshift({
+      type: editingId ? 'update' : 'add',
+      item: title,
+      action: editingId ? 'Updated item' : 'Added item',
+      user: currentUser.email,
+      time: new Date().toLocaleTimeString('en-AE')
+    });
+
+    closeModal();
+    showToast(editingId ? 'Item updated successfully!' : 'Item added successfully!', 'success');
+    await loadConsumables();
+
+  } catch (err) {
+    showToast('Failed to save item. Please try again.', 'error');
+  } finally {
+    saveBtn.textContent = 'Save Item';
+    saveBtn.disabled = false;
+  }
+}
+
+// ── REFRESH ──
+async function refreshData() {
+  showToast('Refreshing data...', 'warning');
+  await loadDashboard();
+  showToast('Data refreshed!', 'success');
+}
+
+// ── TOAST ──
+function showToast(message, type = 'success') {
+  const icons = { success: '✅', error: '❌', warning: '⚠️' };
+  const toast = document.createElement('div');
+  toast.className = `toast ${type}`;
+  toast.innerHTML = `<span>${icons[type]}</span> ${message}`;
+  document.getElementById('toastContainer').appendChild(toast);
+  setTimeout(() => toast.remove(), 3500);
+}
+
+// Close modal on overlay click
+document.getElementById('itemModal').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+</script>
+</body>
+</html>
