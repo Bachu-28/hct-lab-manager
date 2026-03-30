@@ -934,7 +934,7 @@ async function loadDashboard() {
   riskData = await getListItems(CONFIG.LISTS.RISKS);
 
   const today = new Date().toISOString().slice(0, 10);
-  const lowStock = consumablesData.filter(i => (i.Quantity || 0) < (i.MinimumLevel || 0));
+  const lowStock = consumablesData.filter(i => (i.Quantity || 0) < (i.MinStock || 0));
   const todayBookings = bookingsData.filter(i => (i.BookingDate || '').slice(0, 10) === today);
   const openRisks = riskData.filter(i => i.Status !== 'Closed' && i.Status !== 'Approved');
 
@@ -957,7 +957,7 @@ async function loadDashboard() {
         <td>${i.Title || '—'}</td>
         <td>${i.Category || '—'}</td>
         <td><strong>${i.Quantity ?? '—'}</strong></td>
-        <td>${i.MinimumLevel ?? '—'}</td>
+        <td>${i.MinStock ?? '—'}</td>
         <td><span class="badge badge-red">⚠ Low Stock</span></td>
       </tr>
     `).join('');
@@ -979,7 +979,7 @@ function renderConsumables(data) {
     return;
   }
   tbody.innerHTML = data.map(i => {
-    const low = (i.Quantity || 0) < (i.MinimumLevel || 0);
+    const low = (i.Quantity || 0) < (i.MinStock || 0);
     const badge = low
       ? `<span class="badge badge-red">Low Stock</span>`
       : `<span class="badge badge-green">OK</span>`;
@@ -988,7 +988,7 @@ function renderConsumables(data) {
       <td>${i.Category || '—'}</td>
       <td>${i.Quantity ?? '—'}</td>
       <td>${i.Unit || '—'}</td>
-      <td>${i.MinimumLevel ?? '—'}</td>
+      <td>${i.MinStock ?? '—'}</td>
       <td>${i.Location || '—'}</td>
       <td>${badge}</td>
       <td>
@@ -1042,7 +1042,7 @@ async function saveConsumable() {
     Category: document.getElementById('consumableCategory').value,
     Quantity: parseInt(document.getElementById('consumableQty').value) || 0,
     Unit: document.getElementById('consumableUnit').value,
-    MinimumLevel: parseInt(document.getElementById('consumableMin').value) || 0,
+    MinStock: parseInt(document.getElementById('consumableMin').value) || 0,
     Location: document.getElementById('consumableLocation').value,
     Notes: document.getElementById('consumableNotes').value
   };
@@ -1066,7 +1066,7 @@ function editConsumable(id) {
   document.getElementById('consumableCategory').value = item.Category || 'PPE';
   document.getElementById('consumableQty').value = item.Quantity || 0;
   document.getElementById('consumableUnit').value = item.Unit || 'Pcs';
-  document.getElementById('consumableMin').value = item.MinimumLevel || 0;
+  document.getElementById('consumableMin').value = item.MinStock || 0;
   document.getElementById('consumableLocation').value = item.Location || '';
   document.getElementById('consumableNotes').value = item.Notes || '';
   document.getElementById('consumableModalTitle').textContent = 'Edit Item';
