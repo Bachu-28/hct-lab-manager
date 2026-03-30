@@ -5,1305 +5,426 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ADW HS Lab Manager – HCT UAE</title>
 <script src="https://res.cdn.office.net/teams-js/2.22.0/js/MicrosoftTeams.min.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg: #0f1117;
-    --surface: #181c27;
-    --surface2: #1e2330;
-    --border: #2a2f3d;
-    --accent: #3b82f6;
-    --accent2: #10b981;
-    --accent3: #f59e0b;
-    --danger: #ef4444;
-    --text: #e8eaf0;
-    --text2: #8892a4;
-    --text3: #525c6e;
-    --radius: 10px;
-    --shadow: 0 4px 24px rgba(0,0,0,0.4);
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    font-family: 'DM Sans', sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    font-size: 14px;
-    line-height: 1.5;
-  }
-
-  /* ── LAYOUT ── */
-  #app { display: flex; height: 100vh; overflow: hidden; }
-  #sidebar {
-    width: 220px;
-    background: var(--surface);
-    border-right: 1px solid var(--border);
-    display: flex;
-    flex-direction: column;
-    flex-shrink: 0;
-  }
-  #main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
-  #topbar {
-    height: 56px;
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 20px;
-    flex-shrink: 0;
-  }
-  #content { flex: 1; overflow-y: auto; padding: 24px; }
-
-  /* ── SIDEBAR ── */
-  .sidebar-logo {
-    padding: 18px 16px 14px;
-    border-bottom: 1px solid var(--border);
-  }
-  .sidebar-logo .logo-title {
-    font-size: 13px;
-    font-weight: 700;
-    color: var(--accent);
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-  }
-  .sidebar-logo .logo-sub {
-    font-size: 11px;
-    color: var(--text3);
-    margin-top: 2px;
-  }
-  .nav-section {
-    padding: 12px 10px 4px;
-    font-size: 10px;
-    font-weight: 600;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--text3);
-  }
-  .nav-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 9px 12px;
-    margin: 2px 6px;
-    border-radius: 7px;
-    cursor: pointer;
-    color: var(--text2);
-    font-size: 13.5px;
-    font-weight: 500;
-    transition: all 0.15s;
-  }
-  .nav-item:hover { background: var(--surface2); color: var(--text); }
-  .nav-item.active { background: rgba(59,130,246,0.15); color: var(--accent); }
-  .nav-item .nav-icon { font-size: 16px; width: 20px; text-align: center; }
-  .nav-badge {
-    margin-left: auto;
-    background: var(--danger);
-    color: #fff;
-    font-size: 10px;
-    font-weight: 700;
-    padding: 1px 6px;
-    border-radius: 20px;
-    min-width: 18px;
-    text-align: center;
-  }
-  .sidebar-footer {
-    margin-top: auto;
-    padding: 12px 10px;
-    border-top: 1px solid var(--border);
-  }
-  .user-card {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 8px;
-    border-radius: 7px;
-    background: var(--surface2);
-  }
-  .user-avatar {
-    width: 32px; height: 32px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, var(--accent), #7c3aed);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 13px; font-weight: 700; color: #fff;
-    flex-shrink: 0;
-  }
-  .user-name { font-size: 12px; font-weight: 600; color: var(--text); }
-  .user-role { font-size: 10px; color: var(--text3); }
-
-  /* ── TOPBAR ── */
-  .page-title { font-size: 15px; font-weight: 600; color: var(--text); }
-  .topbar-actions { display: flex; align-items: center; gap: 10px; }
-  .btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 7px 14px;
-    border-radius: 7px;
-    font-size: 13px;
-    font-weight: 500;
-    font-family: inherit;
-    cursor: pointer;
-    border: none;
-    transition: all 0.15s;
-  }
-  .btn-primary { background: var(--accent); color: #fff; }
-  .btn-primary:hover { background: #2563eb; }
-  .btn-secondary { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
-  .btn-secondary:hover { background: var(--border); }
-  .btn-success { background: var(--accent2); color: #fff; }
-  .btn-success:hover { background: #059669; }
-  .btn-danger { background: var(--danger); color: #fff; }
-  .btn-danger:hover { background: #dc2626; }
-  .btn-sm { padding: 5px 10px; font-size: 12px; }
-  .btn-icon { padding: 7px; border-radius: 7px; background: var(--surface2); border: 1px solid var(--border); color: var(--text2); cursor: pointer; font-size: 15px; transition: all 0.15s; }
-  .btn-icon:hover { color: var(--text); background: var(--border); }
-
-  /* ── PAGES ── */
-  .page { display: none; }
-  .page.active { display: block; }
-
-  /* ── STATS ROW ── */
-  .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin-bottom: 24px; }
-  .stat-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 16px 18px;
-    position: relative;
-    overflow: hidden;
-  }
-  .stat-card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0;
-    width: 3px; height: 100%;
-    background: var(--accent-color, var(--accent));
-  }
-  .stat-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text3); margin-bottom: 6px; }
-  .stat-value { font-size: 26px; font-weight: 700; color: var(--text); line-height: 1; }
-  .stat-sub { font-size: 11px; color: var(--text3); margin-top: 4px; }
-
-  /* ── TABLE ── */
-  .table-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    overflow: hidden;
-  }
-  .table-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 14px 18px;
-    border-bottom: 1px solid var(--border);
-  }
-  .table-title { font-size: 13px; font-weight: 600; color: var(--text); }
-  .table-actions { display: flex; gap: 8px; align-items: center; }
-  .search-input {
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: 7px;
-    padding: 6px 12px;
-    color: var(--text);
-    font-size: 13px;
-    font-family: inherit;
-    width: 200px;
-    outline: none;
-    transition: border-color 0.15s;
-  }
-  .search-input:focus { border-color: var(--accent); }
-  .search-input::placeholder { color: var(--text3); }
-  table { width: 100%; border-collapse: collapse; }
-  thead th {
-    text-align: left;
-    padding: 10px 16px;
-    font-size: 11px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    color: var(--text3);
-    border-bottom: 1px solid var(--border);
-    background: var(--bg);
-  }
-  tbody tr { border-bottom: 1px solid var(--border); transition: background 0.1s; }
-  tbody tr:last-child { border-bottom: none; }
-  tbody tr:hover { background: rgba(255,255,255,0.02); }
-  tbody td { padding: 11px 16px; font-size: 13px; color: var(--text); }
-  .empty-state {
-    text-align: center;
-    padding: 48px 24px;
-    color: var(--text3);
-  }
-  .empty-state .empty-icon { font-size: 36px; margin-bottom: 12px; }
-  .empty-state p { font-size: 13px; }
-
-  /* ── BADGES ── */
-  .badge {
-    display: inline-flex;
-    align-items: center;
-    padding: 3px 8px;
-    border-radius: 20px;
-    font-size: 11px;
-    font-weight: 600;
-    gap: 4px;
-  }
-  .badge-green { background: rgba(16,185,129,0.15); color: var(--accent2); }
-  .badge-red { background: rgba(239,68,68,0.15); color: var(--danger); }
-  .badge-yellow { background: rgba(245,158,11,0.15); color: var(--accent3); }
-  .badge-blue { background: rgba(59,130,246,0.15); color: var(--accent); }
-  .badge-gray { background: rgba(82,92,110,0.3); color: var(--text2); }
-
-  /* ── MODAL ── */
-  .modal-overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.6);
-    backdrop-filter: blur(4px);
-    z-index: 1000;
-    align-items: center;
-    justify-content: center;
-  }
-  .modal-overlay.open { display: flex; }
-  .modal {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    width: 500px;
-    max-width: 95vw;
-    max-height: 85vh;
-    overflow-y: auto;
-    box-shadow: var(--shadow);
-  }
-  .modal-head {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 16px 20px;
-    border-bottom: 1px solid var(--border);
-  }
-  .modal-head h3 { font-size: 15px; font-weight: 600; }
-  .modal-close { background: none; border: none; color: var(--text2); font-size: 18px; cursor: pointer; padding: 4px; border-radius: 4px; }
-  .modal-close:hover { color: var(--text); background: var(--surface2); }
-  .modal-body { padding: 20px; }
-  .modal-footer {
-    display: flex;
-    justify-content: flex-end;
-    gap: 8px;
-    padding: 14px 20px;
-    border-top: 1px solid var(--border);
-  }
-  .form-group { margin-bottom: 16px; }
-  .form-label { display: block; font-size: 12px; font-weight: 600; color: var(--text2); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.04em; }
-  .form-control {
-    width: 100%;
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: 7px;
-    padding: 8px 12px;
-    color: var(--text);
-    font-size: 13px;
-    font-family: inherit;
-    outline: none;
-    transition: border-color 0.15s;
-  }
-  .form-control:focus { border-color: var(--accent); }
-  .form-control option { background: var(--surface); }
-  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-
-  /* ── LOADING ── */
-  #loadingScreen {
-    position: fixed;
-    inset: 0;
-    background: var(--bg);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    gap: 16px;
-    z-index: 9999;
-  }
-  .spinner {
-    width: 36px; height: 36px;
-    border: 3px solid var(--border);
-    border-top-color: var(--accent);
-    border-radius: 50%;
-    animation: spin 0.7s linear infinite;
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  .loading-text { color: var(--text2); font-size: 13px; }
-
-  /* ── TOAST ── */
-  #toastContainer { position: fixed; bottom: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
-  .toast {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 12px 16px;
-    border-radius: 8px;
-    font-size: 13px;
-    font-weight: 500;
-    box-shadow: var(--shadow);
-    animation: slideIn 0.2s ease;
-    min-width: 260px;
-  }
-  @keyframes slideIn { from { transform: translateX(20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-  .toast.success { background: #064e3b; border: 1px solid #065f46; color: #6ee7b7; }
-  .toast.error { background: #450a0a; border: 1px solid #7f1d1d; color: #fca5a5; }
-  .toast.warning { background: #451a03; border: 1px solid #78350f; color: #fcd34d; }
-
-  /* ── SECTION HEADER ── */
-  .section-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 20px;
-  }
-  .section-header h2 { font-size: 18px; font-weight: 700; }
-  .section-header p { font-size: 12px; color: var(--text3); margin-top: 2px; }
-
-  /* ── ALERT ROW ── */
-  .alert-strip {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 10px 16px;
-    background: rgba(245,158,11,0.1);
-    border: 1px solid rgba(245,158,11,0.3);
-    border-radius: 8px;
-    margin-bottom: 16px;
-    font-size: 13px;
-    color: var(--accent3);
-  }
-
-  /* ── AUTH ERROR ── */
-  #authError {
-    display: none;
-    text-align: center;
-    padding: 60px 24px;
-  }
-  #authError h2 { font-size: 20px; margin-bottom: 8px; }
-  #authError p { color: var(--text2); font-size: 14px; }
-
-  /* ── RISK MATRIX ── */
-  .risk-matrix { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; margin-bottom: 16px; }
-  .risk-cell {
-    aspect-ratio: 1;
-    border-radius: 4px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 10px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: transform 0.1s;
-  }
-  .risk-cell:hover { transform: scale(1.05); }
-  .risk-low { background: rgba(16,185,129,0.3); color: var(--accent2); }
-  .risk-med { background: rgba(245,158,11,0.3); color: var(--accent3); }
-  .risk-high { background: rgba(239,68,68,0.3); color: var(--danger); }
-
-  /* ── SCROLLBAR ── */
-  ::-webkit-scrollbar { width: 6px; height: 6px; }
-  ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
-  ::-webkit-scrollbar-thumb:hover { background: var(--text3); }
-
-  /* responsive */
-  @media (max-width: 768px) {
-    #sidebar { width: 60px; }
-    .nav-item span:not(.nav-icon) { display: none; }
-    .sidebar-logo .logo-title { display: none; }
-    .user-name, .user-role { display: none; }
-  }
+  :root{--bg:#0f1117;--surface:#181c27;--surface2:#1e2330;--border:#2a2f3d;--accent:#3b82f6;--accent2:#10b981;--accent3:#f59e0b;--danger:#ef4444;--text:#e8eaf0;--text2:#8892a4;--text3:#525c6e;--radius:10px;--shadow:0 4px 24px rgba(0,0,0,0.4)}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:14px;line-height:1.5}
+  #app{display:flex;height:100vh;overflow:hidden}
+  #sidebar{width:220px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0}
+  #main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+  #topbar{height:56px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 20px;flex-shrink:0}
+  #content{flex:1;overflow-y:auto;padding:24px}
+  .sidebar-logo{padding:18px 16px 14px;border-bottom:1px solid var(--border)}
+  .logo-title{font-size:13px;font-weight:700;color:var(--accent);letter-spacing:.04em;text-transform:uppercase}
+  .logo-sub{font-size:11px;color:var(--text3);margin-top:2px}
+  .nav-section{padding:12px 10px 4px;font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text3)}
+  .nav-item{display:flex;align-items:center;gap:10px;padding:9px 12px;margin:2px 6px;border-radius:7px;cursor:pointer;color:var(--text2);font-size:13.5px;font-weight:500;transition:all .15s}
+  .nav-item:hover{background:var(--surface2);color:var(--text)}
+  .nav-item.active{background:rgba(59,130,246,.15);color:var(--accent)}
+  .nav-icon{font-size:16px;width:20px;text-align:center}
+  .nav-badge{margin-left:auto;background:var(--danger);color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:20px;min-width:18px;text-align:center}
+  .sidebar-footer{margin-top:auto;padding:12px 10px;border-top:1px solid var(--border)}
+  .user-card{display:flex;align-items:center;gap:10px;padding:8px;border-radius:7px;background:var(--surface2)}
+  .user-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--accent),#7c3aed);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;flex-shrink:0}
+  .user-name{font-size:12px;font-weight:600;color:var(--text)}
+  .user-role{font-size:10px;color:var(--text3)}
+  .page-title{font-size:15px;font-weight:600}
+  .topbar-actions{display:flex;align-items:center;gap:10px}
+  .btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:7px;font-size:13px;font-weight:500;font-family:inherit;cursor:pointer;border:none;transition:all .15s}
+  .btn-primary{background:var(--accent);color:#fff}.btn-primary:hover{background:#2563eb}
+  .btn-secondary{background:var(--surface2);color:var(--text);border:1px solid var(--border)}.btn-secondary:hover{background:var(--border)}
+  .btn-danger{background:var(--danger);color:#fff}.btn-danger:hover{background:#dc2626}
+  .btn-sm{padding:5px 10px;font-size:12px}
+  .btn-icon{padding:7px;border-radius:7px;background:var(--surface2);border:1px solid var(--border);color:var(--text2);cursor:pointer;font-size:15px;transition:all .15s}
+  .btn-icon:hover{color:var(--text);background:var(--border)}
+  .page{display:none}.page.active{display:block}
+  .stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-bottom:24px}
+  .stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;position:relative;overflow:hidden}
+  .stat-card::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;background:var(--accent-color,var(--accent))}
+  .stat-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);margin-bottom:6px}
+  .stat-value{font-size:26px;font-weight:700;color:var(--text);line-height:1}
+  .stat-sub{font-size:11px;color:var(--text3);margin-top:4px}
+  .table-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+  .table-header{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:8px}
+  .table-title{font-size:13px;font-weight:600}
+  .table-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .search-input{background:var(--bg);border:1px solid var(--border);border-radius:7px;padding:6px 12px;color:var(--text);font-size:13px;font-family:inherit;width:190px;outline:none;transition:border-color .15s}
+  .search-input:focus{border-color:var(--accent)}
+  .search-input::placeholder{color:var(--text3)}
+  .filter-select{background:var(--bg);border:1px solid var(--border);border-radius:7px;padding:6px 10px;color:var(--text);font-size:13px;font-family:inherit;outline:none;cursor:pointer}
+  .table-wrap{overflow-x:auto}
+  table{width:100%;border-collapse:collapse;min-width:700px}
+  thead th{text-align:left;padding:10px 14px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);border-bottom:1px solid var(--border);background:var(--bg);white-space:nowrap}
+  tbody tr{border-bottom:1px solid var(--border);transition:background .1s}
+  tbody tr:last-child{border-bottom:none}
+  tbody tr:hover{background:rgba(255,255,255,.02)}
+  tbody td{padding:10px 14px;font-size:13px;color:var(--text)}
+  .empty-state{text-align:center;padding:48px 24px;color:var(--text3)}
+  .empty-icon{font-size:36px;margin-bottom:12px}
+  .badge{display:inline-flex;align-items:center;padding:3px 8px;border-radius:20px;font-size:11px;font-weight:600;white-space:nowrap}
+  .badge-green{background:rgba(16,185,129,.15);color:var(--accent2)}
+  .badge-red{background:rgba(239,68,68,.15);color:var(--danger)}
+  .badge-yellow{background:rgba(245,158,11,.15);color:var(--accent3)}
+  .badge-blue{background:rgba(59,130,246,.15);color:var(--accent)}
+  .badge-gray{background:rgba(82,92,110,.3);color:var(--text2)}
+  .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);backdrop-filter:blur(4px);z-index:1000;align-items:center;justify-content:center}
+  .modal-overlay.open{display:flex}
+  .modal{background:var(--surface);border:1px solid var(--border);border-radius:12px;width:580px;max-width:96vw;max-height:88vh;overflow-y:auto;box-shadow:var(--shadow)}
+  .modal-head{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--surface);z-index:1}
+  .modal-head h3{font-size:15px;font-weight:600}
+  .modal-close{background:none;border:none;color:var(--text2);font-size:18px;cursor:pointer;padding:4px 8px;border-radius:4px}
+  .modal-close:hover{color:var(--text);background:var(--surface2)}
+  .modal-body{padding:20px}
+  .modal-footer{display:flex;justify-content:flex-end;gap:8px;padding:14px 20px;border-top:1px solid var(--border);position:sticky;bottom:0;background:var(--surface)}
+  .form-group{margin-bottom:14px}
+  .form-label{display:block;font-size:11px;font-weight:600;color:var(--text2);margin-bottom:5px;text-transform:uppercase;letter-spacing:.04em}
+  .form-control{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:7px;padding:8px 12px;color:var(--text);font-size:13px;font-family:inherit;outline:none;transition:border-color .15s}
+  .form-control:focus{border-color:var(--accent)}
+  .form-control option{background:var(--surface)}
+  textarea.form-control{resize:vertical;min-height:70px}
+  .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .form-section{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--accent);margin:18px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--border)}
+  .section-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;gap:12px}
+  .section-header h2{font-size:18px;font-weight:700}
+  .section-header p{font-size:12px;color:var(--text3);margin-top:2px}
+  #loadingScreen{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;z-index:9999}
+  .spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .loading-text{color:var(--text2);font-size:13px}
+  #toastContainer{position:fixed;bottom:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:8px}
+  .toast{display:flex;align-items:center;gap:10px;padding:12px 16px;border-radius:8px;font-size:13px;font-weight:500;box-shadow:var(--shadow);animation:slideIn .2s ease;min-width:260px}
+  @keyframes slideIn{from{transform:translateX(20px);opacity:0}to{transform:translateX(0);opacity:1}}
+  .toast.success{background:#064e3b;border:1px solid #065f46;color:#6ee7b7}
+  .toast.error{background:#450a0a;border:1px solid #7f1d1d;color:#fca5a5}
+  .toast.warning{background:#451a03;border:1px solid #78350f;color:#fcd34d}
+  .expiry-warning{color:var(--accent3);font-size:11px}
+  .expiry-expired{color:var(--danger);font-size:11px}
+  ::-webkit-scrollbar{width:6px;height:6px}
+  ::-webkit-scrollbar-track{background:transparent}
+  ::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+  @media(max-width:768px){#sidebar{width:56px}.nav-item span:not(.nav-icon){display:none}.logo-title,.logo-sub,.user-name,.user-role{display:none}.form-row{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
-
-<div id="loadingScreen">
-  <div style="font-size:28px">🔬</div>
-  <div class="spinner"></div>
-  <div class="loading-text">Signing in with Microsoft Teams…</div>
-</div>
-
+<div id="loadingScreen"><div style="font-size:32px">🔬</div><div class="spinner"></div><div class="loading-text">Signing in with Microsoft Teams…</div></div>
 <div id="toastContainer"></div>
-
 <div id="app" style="display:none">
-  <!-- SIDEBAR -->
   <div id="sidebar">
-    <div class="sidebar-logo">
-      <div class="logo-title">HCT Lab Mgr</div>
-      <div class="logo-sub">ADW Health Sciences</div>
-    </div>
+    <div class="sidebar-logo"><div class="logo-title">HCT Lab Mgr</div><div class="logo-sub">ADW Health Sciences</div></div>
     <div class="nav-section">Modules</div>
-    <div class="nav-item active" onclick="showPage('dashboard',this)">
-      <span class="nav-icon">🏠</span><span>Dashboard</span>
-    </div>
-    <div class="nav-item" onclick="showPage('consumables',this)">
-      <span class="nav-icon">🧪</span><span>Consumables</span>
-      <span class="nav-badge" id="lowStockBadge" style="display:none">!</span>
-    </div>
-    <div class="nav-item" onclick="showPage('utilization',this)">
-      <span class="nav-icon">📅</span><span>Lab Bookings</span>
-    </div>
-    <div class="nav-item" onclick="showPage('risk',this)">
-      <span class="nav-icon">⚠️</span><span>Risk Assessment</span>
-    </div>
-    <div class="sidebar-footer">
-      <div class="user-card">
-        <div class="user-avatar" id="userAvatar">?</div>
-        <div>
-          <div class="user-name" id="userName">Loading…</div>
-          <div class="user-role" id="userRole">HCT Staff</div>
-        </div>
-      </div>
-    </div>
+    <div class="nav-item active" onclick="showPage('dashboard',this)"><span class="nav-icon">🏠</span><span>Dashboard</span></div>
+    <div class="nav-item" onclick="showPage('consumables',this)"><span class="nav-icon">🧪</span><span>Consumables</span><span class="nav-badge" id="lowStockBadge" style="display:none">!</span></div>
+    <div class="nav-item" onclick="showPage('utilization',this)"><span class="nav-icon">📅</span><span>Lab Bookings</span></div>
+    <div class="nav-item" onclick="showPage('risk',this)"><span class="nav-icon">⚠️</span><span>Risk Assessment</span></div>
+    <div class="sidebar-footer"><div class="user-card"><div class="user-avatar" id="userAvatar">BP</div><div><div class="user-name" id="userName">Loading…</div><div class="user-role" id="userRole">HCT Staff</div></div></div></div>
   </div>
-
-  <!-- MAIN -->
   <div id="main">
-    <div id="topbar">
-      <div class="page-title" id="pageTitle">Dashboard</div>
-      <div class="topbar-actions">
-        <button class="btn-icon" onclick="refreshPage()" title="Refresh">↻</button>
-        <div id="topbarActions"></div>
-      </div>
-    </div>
+    <div id="topbar"><div class="page-title" id="pageTitle">Dashboard</div><div class="topbar-actions"><button class="btn-icon" onclick="refreshPage()" title="Refresh">↻</button></div></div>
     <div id="content">
 
-      <!-- AUTH ERROR -->
-      <div id="authError">
-        <div style="font-size:48px;margin-bottom:16px">🔒</div>
-        <h2>Authentication Required</h2>
-        <p>Please open this app inside Microsoft Teams to sign in automatically.</p>
-      </div>
-
-      <!-- DASHBOARD PAGE -->
+      <!-- DASHBOARD -->
       <div class="page active" id="page-dashboard">
-        <div class="section-header">
-          <div>
-            <h2>Overview</h2>
-            <p>ADW Health Sciences – Lab Management System</p>
-          </div>
-        </div>
+        <div class="section-header"><div><h2>Overview</h2><p>ADW Health Sciences – Lab Management System</p></div></div>
         <div class="stats-row">
-          <div class="stat-card" style="--accent-color:#3b82f6">
-            <div class="stat-label">Total Consumables</div>
-            <div class="stat-value" id="statTotal">—</div>
-            <div class="stat-sub">Items tracked</div>
-          </div>
-          <div class="stat-card" style="--accent-color:#ef4444">
-            <div class="stat-label">Low Stock</div>
-            <div class="stat-value" id="statLow">—</div>
-            <div class="stat-sub">Below minimum level</div>
-          </div>
-          <div class="stat-card" style="--accent-color:#10b981">
-            <div class="stat-label">Today's Bookings</div>
-            <div class="stat-value" id="statBookings">—</div>
-            <div class="stat-sub">Active lab sessions</div>
-          </div>
-          <div class="stat-card" style="--accent-color:#f59e0b">
-            <div class="stat-label">Open Risk Items</div>
-            <div class="stat-value" id="statRisks">—</div>
-            <div class="stat-sub">Pending review</div>
-          </div>
+          <div class="stat-card" style="--accent-color:#3b82f6"><div class="stat-label">Total Consumables</div><div class="stat-value" id="statTotal">—</div><div class="stat-sub">Items tracked</div></div>
+          <div class="stat-card" style="--accent-color:#ef4444"><div class="stat-label">Low Stock</div><div class="stat-value" id="statLow">—</div><div class="stat-sub">Below minimum level</div></div>
+          <div class="stat-card" style="--accent-color:#f59e0b"><div class="stat-label">Expiring Soon</div><div class="stat-value" id="statExpiring">—</div><div class="stat-sub">Within 30 days</div></div>
+          <div class="stat-card" style="--accent-color:#10b981"><div class="stat-label">Today's Bookings</div><div class="stat-value" id="statBookings">—</div><div class="stat-sub">Active lab sessions</div></div>
+          <div class="stat-card" style="--accent-color:#a78bfa"><div class="stat-label">Open Risk Items</div><div class="stat-value" id="statRisks">—</div><div class="stat-sub">Pending review</div></div>
         </div>
-        <div class="table-card">
-          <div class="table-header">
-            <div class="table-title">⚠️ Low Stock Alerts</div>
-          </div>
-          <table>
-            <thead><tr><th>Item</th><th>Category</th><th>Quantity</th><th>Min Level</th><th>Status</th></tr></thead>
-            <tbody id="alertsTable">
-              <tr><td colspan="5"><div class="empty-state"><div class="empty-icon">✅</div><p>All stock levels are adequate</p></div></td></tr>
-            </tbody>
-          </table>
+        <div class="table-card"><div class="table-header"><div class="table-title">⚠️ Low Stock & Expiry Alerts</div></div>
+          <div class="table-wrap"><table><thead><tr><th>Item</th><th>Category</th><th>Campus</th><th>Lab</th><th>Qty</th><th>Min Stock</th><th>Expiry</th><th>Alert</th></tr></thead>
+          <tbody id="alertsTable"><tr><td colspan="8"><div class="empty-state"><div class="empty-icon">✅</div><p>All stock levels are adequate</p></div></td></tr></tbody></table></div>
         </div>
       </div>
 
-      <!-- CONSUMABLES PAGE -->
+      <!-- CONSUMABLES -->
       <div class="page" id="page-consumables">
-        <div class="section-header">
-          <div><h2>Consumables Inventory</h2><p>Manage lab consumable stock levels</p></div>
-          <button class="btn btn-primary" onclick="openModal('consumable')" id="addConsumableBtn">+ Add Item</button>
-        </div>
+        <div class="section-header"><div><h2>Consumables Inventory</h2><p>Manage lab consumable stock levels</p></div><button class="btn btn-primary" onclick="openConsumableModal()">+ Add Item</button></div>
         <div class="table-card">
-          <div class="table-header">
-            <div class="table-title">All Items</div>
+          <div class="table-header"><div class="table-title">All Items</div>
             <div class="table-actions">
-              <input class="search-input" type="text" placeholder="Search items…" oninput="filterTable('consumablesTable',this.value)">
+              <select class="filter-select" id="filterCampus" onchange="applyFilters()"><option value="">All Campuses</option><option>Abu Dhabi</option><option>Al Ain</option><option>Sharjah</option><option>Fujairah</option><option>Ras Al Khaimah</option></select>
+              <select class="filter-select" id="filterCategory" onchange="applyFilters()"><option value="">All Categories</option><option>PPE</option><option>Chemicals</option><option>Glassware</option><option>Biology Supplies</option><option>Physics Equipment</option><option>First Aid</option><option>Other</option></select>
+              <input class="search-input" type="text" placeholder="Search items…" id="consumableSearch" oninput="applyFilters()">
             </div>
           </div>
-          <table>
-            <thead><tr><th>Item Name</th><th>Category</th><th>Quantity</th><th>Unit</th><th>Min Level</th><th>Location</th><th>Status</th><th>Actions</th></tr></thead>
-            <tbody id="consumablesTable">
-              <tr><td colspan="8"><div class="empty-state"><div class="empty-icon">🧪</div><p>Loading consumables…</p></div></td></tr>
-            </tbody>
-          </table>
+          <div class="table-wrap"><table><thead><tr><th>Item Name</th><th>Category</th><th>Campus</th><th>Program</th><th>Lab</th><th>Qty</th><th>Unit</th><th>Min Stock</th><th>Supplier</th><th>Expiry</th><th>Lot No.</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody id="consumablesTable"><tr><td colspan="13"><div class="empty-state"><div class="empty-icon">🧪</div><p>Loading consumables…</p></div></td></tr></tbody></table></div>
         </div>
       </div>
 
-      <!-- UTILIZATION PAGE -->
+      <!-- LAB BOOKINGS -->
       <div class="page" id="page-utilization">
-        <div class="section-header">
-          <div><h2>Lab Bookings</h2><p>Schedule and manage lab usage</p></div>
-          <button class="btn btn-primary" onclick="openModal('booking')" id="addBookingBtn">+ New Booking</button>
-        </div>
-        <div class="table-card">
-          <div class="table-header">
-            <div class="table-title">All Bookings</div>
-            <div class="table-actions">
-              <input class="search-input" type="text" placeholder="Search bookings…" oninput="filterTable('bookingsTable',this.value)">
-            </div>
-          </div>
-          <table>
-            <thead><tr><th>Lab</th><th>Purpose</th><th>Date</th><th>Time</th><th>Booked By</th><th>Status</th><th>Actions</th></tr></thead>
-            <tbody id="bookingsTable">
-              <tr><td colspan="7"><div class="empty-state"><div class="empty-icon">📅</div><p>Loading bookings…</p></div></td></tr>
-            </tbody>
-          </table>
+        <div class="section-header"><div><h2>Lab Bookings</h2><p>Schedule and manage lab usage sessions</p></div><button class="btn btn-primary" onclick="openBookingModal()">+ New Booking</button></div>
+        <div class="table-card"><div class="table-header"><div class="table-title">All Bookings</div><div class="table-actions"><input class="search-input" type="text" placeholder="Search bookings…" oninput="filterTable('bookingsTable',this.value)"></div></div>
+          <div class="table-wrap"><table><thead><tr><th>Lab</th><th>Purpose</th><th>Date</th><th>Time</th><th>Campus</th><th>Program</th><th>Booked By</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody id="bookingsTable"><tr><td colspan="9"><div class="empty-state"><div class="empty-icon">📅</div><p>Loading bookings…</p></div></td></tr></tbody></table></div>
         </div>
       </div>
 
-      <!-- RISK PAGE -->
+      <!-- RISK -->
       <div class="page" id="page-risk">
-        <div class="section-header">
-          <div><h2>Risk Assessment</h2><p>Health & Safety risk tracking</p></div>
-          <button class="btn btn-primary" onclick="openModal('risk')" id="addRiskBtn">+ New Assessment</button>
-        </div>
-        <div class="table-card">
-          <div class="table-header">
-            <div class="table-title">All Assessments</div>
-            <div class="table-actions">
-              <input class="search-input" type="text" placeholder="Search assessments…" oninput="filterTable('riskTable',this.value)">
-            </div>
-          </div>
-          <table>
-            <thead><tr><th>Title</th><th>Lab</th><th>Hazard</th><th>Risk Level</th><th>Assessed By</th><th>Status</th><th>Actions</th></tr></thead>
-            <tbody id="riskTable">
-              <tr><td colspan="7"><div class="empty-state"><div class="empty-icon">⚠️</div><p>Loading risk assessments…</p></div></td></tr>
-            </tbody>
-          </table>
+        <div class="section-header"><div><h2>Risk Assessment</h2><p>Health &amp; Safety risk tracking</p></div><button class="btn btn-primary" onclick="openRiskModal()">+ New Assessment</button></div>
+        <div class="table-card"><div class="table-header"><div class="table-title">All Assessments</div><div class="table-actions"><input class="search-input" type="text" placeholder="Search assessments…" oninput="filterTable('riskTable',this.value)"></div></div>
+          <div class="table-wrap"><table><thead><tr><th>Title</th><th>Lab</th><th>Campus</th><th>Hazard</th><th>Risk Level</th><th>Assessed By</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody id="riskTable"><tr><td colspan="9"><div class="empty-state"><div class="empty-icon">⚠️</div><p>Loading risk assessments…</p></div></td></tr></tbody></table></div>
         </div>
       </div>
-
     </div>
   </div>
 </div>
 
-<!-- MODALS -->
-
-<!-- Consumable Modal -->
+<!-- CONSUMABLE MODAL -->
 <div class="modal-overlay" id="modalConsumable">
   <div class="modal">
-    <div class="modal-head">
-      <h3 id="consumableModalTitle">Add Consumable Item</h3>
-      <button class="modal-close" onclick="closeModal('modalConsumable')">✕</button>
-    </div>
+    <div class="modal-head"><h3 id="consumableModalTitle">Add Consumable Item</h3><button class="modal-close" onclick="closeModal('modalConsumable')">✕</button></div>
     <div class="modal-body">
       <input type="hidden" id="consumableId">
-      <div class="form-group">
-        <label class="form-label">Item Name *</label>
-        <input class="form-control" id="consumableName" placeholder="e.g. Nitrile Gloves (Size M)">
+      <div class="form-section">Basic Information</div>
+      <div class="form-group"><label class="form-label">Item Name *</label><input class="form-control" id="consumableName" placeholder="e.g. Nitrile Gloves (Size M)"></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Category</label><select class="form-control" id="consumableCategory"><option>PPE</option><option>Chemicals</option><option>Glassware</option><option>Biology Supplies</option><option>Physics Equipment</option><option>First Aid</option><option>Other</option></select></div>
+        <div class="form-group"><label class="form-label">Unit</label><select class="form-control" id="consumableUnit"><option>Pairs</option><option>Pcs</option><option>Boxes</option><option>Litres</option><option>mL</option><option>Kg</option><option>g</option><option>Sets</option><option>Rolls</option><option>Packets</option></select></div>
       </div>
       <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">Category</label>
-          <select class="form-control" id="consumableCategory">
-            <option>PPE</option>
-            <option>Chemicals</option>
-            <option>Glassware</option>
-            <option>Biology Supplies</option>
-            <option>Physics Equipment</option>
-            <option>First Aid</option>
-            <option>Other</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Unit</label>
-          <select class="form-control" id="consumableUnit">
-            <option>Pairs</option>
-            <option>Pcs</option>
-            <option>Boxes</option>
-            <option>Litres</option>
-            <option>mL</option>
-            <option>Kg</option>
-            <option>g</option>
-            <option>Sets</option>
-          </select>
-        </div>
+        <div class="form-group"><label class="form-label">Quantity *</label><input class="form-control" type="number" id="consumableQty" placeholder="0" min="0"></div>
+        <div class="form-group"><label class="form-label">Min Stock Level</label><input class="form-control" type="number" id="consumableMinStock" placeholder="10" min="0"></div>
+      </div>
+      <div class="form-section">Location</div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Campus</label><select class="form-control" id="consumableCampus"><option value="">Select campus</option><option>Abu Dhabi</option><option>Al Ain</option><option>Sharjah</option><option>Fujairah</option><option>Ras Al Khaimah</option></select></div>
+        <div class="form-group"><label class="form-label">Division</label><select class="form-control" id="consumableDivision"><option value="">Select division</option><option>Health Sciences</option><option>Engineering</option><option>Business</option><option>IT</option><option>Education</option></select></div>
       </div>
       <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">Quantity *</label>
-          <input class="form-control" type="number" id="consumableQty" placeholder="0" min="0">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Minimum Level</label>
-          <input class="form-control" type="number" id="consumableMin" placeholder="10" min="0">
-        </div>
+        <div class="form-group"><label class="form-label">Program</label><input class="form-control" id="consumableProgram" placeholder="e.g. Nursing, Pharmacy"></div>
+        <div class="form-group"><label class="form-label">Lab Name</label><input class="form-control" id="consumableLabName" placeholder="e.g. Biology Lab A"></div>
       </div>
-      <div class="form-group">
-        <label class="form-label">Location</label>
-        <input class="form-control" id="consumableLocation" placeholder="e.g. Biology Lab A – Cabinet 3">
+      <div class="form-group"><label class="form-label">Storage Location</label><input class="form-control" id="consumableLocation" placeholder="e.g. Cabinet 3, Shelf B"></div>
+      <div class="form-section">Supplier & Tracking</div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Supplier</label><input class="form-control" id="consumableSupplier" placeholder="Supplier name"></div>
+        <div class="form-group"><label class="form-label">Lot Number</label><input class="form-control" id="consumableLotNumber" placeholder="e.g. LOT-2024-001"></div>
       </div>
-      <div class="form-group">
-        <label class="form-label">Notes</label>
-        <textarea class="form-control" id="consumableNotes" rows="2" placeholder="Supplier, expiry, special handling…"></textarea>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Expiry Date</label><input class="form-control" type="date" id="consumableExpiry"></div>
+        <div class="form-group"><label class="form-label">Last Updated</label><input class="form-control" type="date" id="consumableLastUpdated"></div>
       </div>
+      <div class="form-group"><label class="form-label">Notes</label><textarea class="form-control" id="consumableNotes" placeholder="Special handling, storage conditions, reorder info…"></textarea></div>
     </div>
-    <div class="modal-footer">
-      <button class="btn btn-secondary" onclick="closeModal('modalConsumable')">Cancel</button>
-      <button class="btn btn-primary" onclick="saveConsumable()">Save Item</button>
-    </div>
+    <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('modalConsumable')">Cancel</button><button class="btn btn-primary" onclick="saveConsumable()">Save Item</button></div>
   </div>
 </div>
 
-<!-- Booking Modal -->
+<!-- BOOKING MODAL -->
 <div class="modal-overlay" id="modalBooking">
   <div class="modal">
-    <div class="modal-head">
-      <h3 id="bookingModalTitle">New Lab Booking</h3>
-      <button class="modal-close" onclick="closeModal('modalBooking')">✕</button>
-    </div>
+    <div class="modal-head"><h3 id="bookingModalTitle">New Lab Booking</h3><button class="modal-close" onclick="closeModal('modalBooking')">✕</button></div>
     <div class="modal-body">
       <input type="hidden" id="bookingId">
-      <div class="form-group">
-        <label class="form-label">Lab Name *</label>
-        <select class="form-control" id="bookingLab">
-          <option>Biology Lab A</option>
-          <option>Biology Lab B</option>
-          <option>Chemistry Lab A</option>
-          <option>Chemistry Lab B</option>
-          <option>Physics Lab</option>
-          <option>Computer Lab 1</option>
-          <option>Computer Lab 2</option>
-          <option>Anatomy Lab</option>
-        </select>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Campus</label><select class="form-control" id="bookingCampus"><option>Abu Dhabi</option><option>Al Ain</option><option>Sharjah</option><option>Fujairah</option><option>Ras Al Khaimah</option></select></div>
+        <div class="form-group"><label class="form-label">Lab Name *</label><select class="form-control" id="bookingLab"><option>Biology Lab A</option><option>Biology Lab B</option><option>Chemistry Lab A</option><option>Chemistry Lab B</option><option>Physics Lab</option><option>Computer Lab 1</option><option>Computer Lab 2</option><option>Anatomy Lab</option><option>Nursing Skills Lab</option><option>Simulation Lab</option></select></div>
       </div>
-      <div class="form-group">
-        <label class="form-label">Purpose *</label>
-        <input class="form-control" id="bookingPurpose" placeholder="e.g. Practical session – Cell Biology">
+      <div class="form-group"><label class="form-label">Purpose *</label><input class="form-control" id="bookingPurpose" placeholder="e.g. Practical session – Cell Biology"></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Program</label><input class="form-control" id="bookingProgram" placeholder="e.g. Nursing"></div>
+        <div class="form-group"><label class="form-label">Date *</label><input class="form-control" type="date" id="bookingDate"></div>
       </div>
       <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">Date *</label>
-          <input class="form-control" type="date" id="bookingDate">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Start Time *</label>
-          <input class="form-control" type="time" id="bookingStart">
-        </div>
+        <div class="form-group"><label class="form-label">Start Time *</label><input class="form-control" type="time" id="bookingStart"></div>
+        <div class="form-group"><label class="form-label">End Time *</label><input class="form-control" type="time" id="bookingEnd"></div>
       </div>
       <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">End Time *</label>
-          <input class="form-control" type="time" id="bookingEnd">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Status</label>
-          <select class="form-control" id="bookingStatus">
-            <option>Pending</option>
-            <option>Approved</option>
-            <option>Rejected</option>
-            <option>Completed</option>
-          </select>
-        </div>
+        <div class="form-group"><label class="form-label">No. of Students</label><input class="form-control" type="number" id="bookingStudents" placeholder="0" min="0"></div>
+        <div class="form-group"><label class="form-label">Status</label><select class="form-control" id="bookingStatus"><option>Pending</option><option>Approved</option><option>Rejected</option><option>Completed</option></select></div>
       </div>
-      <div class="form-group">
-        <label class="form-label">Notes</label>
-        <textarea class="form-control" id="bookingNotes" rows="2" placeholder="Special requirements, equipment needed…"></textarea>
-      </div>
+      <div class="form-group"><label class="form-label">Notes</label><textarea class="form-control" id="bookingNotes" placeholder="Special requirements, equipment needed…"></textarea></div>
     </div>
-    <div class="modal-footer">
-      <button class="btn btn-secondary" onclick="closeModal('modalBooking')">Cancel</button>
-      <button class="btn btn-primary" onclick="saveBooking()">Save Booking</button>
-    </div>
+    <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('modalBooking')">Cancel</button><button class="btn btn-primary" onclick="saveBooking()">Save Booking</button></div>
   </div>
 </div>
 
-<!-- Risk Modal -->
+<!-- RISK MODAL -->
 <div class="modal-overlay" id="modalRisk">
   <div class="modal">
-    <div class="modal-head">
-      <h3 id="riskModalTitle">New Risk Assessment</h3>
-      <button class="modal-close" onclick="closeModal('modalRisk')">✕</button>
-    </div>
+    <div class="modal-head"><h3 id="riskModalTitle">New Risk Assessment</h3><button class="modal-close" onclick="closeModal('modalRisk')">✕</button></div>
     <div class="modal-body">
       <input type="hidden" id="riskId">
-      <div class="form-group">
-        <label class="form-label">Assessment Title *</label>
-        <input class="form-control" id="riskTitle" placeholder="e.g. Chemical Handling – Acid Lab">
+      <div class="form-group"><label class="form-label">Assessment Title *</label><input class="form-control" id="riskTitle" placeholder="e.g. Chemical Handling – Acid Lab"></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Campus</label><select class="form-control" id="riskCampus"><option>Abu Dhabi</option><option>Al Ain</option><option>Sharjah</option><option>Fujairah</option><option>Ras Al Khaimah</option></select></div>
+        <div class="form-group"><label class="form-label">Lab Name *</label><select class="form-control" id="riskLab"><option>Biology Lab A</option><option>Biology Lab B</option><option>Chemistry Lab A</option><option>Chemistry Lab B</option><option>Physics Lab</option><option>Anatomy Lab</option><option>Nursing Skills Lab</option><option>Simulation Lab</option></select></div>
       </div>
       <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">Lab Name *</label>
-          <select class="form-control" id="riskLab">
-            <option>Biology Lab A</option>
-            <option>Biology Lab B</option>
-            <option>Chemistry Lab A</option>
-            <option>Chemistry Lab B</option>
-            <option>Physics Lab</option>
-            <option>Computer Lab 1</option>
-            <option>Anatomy Lab</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Risk Level *</label>
-          <select class="form-control" id="riskLevel">
-            <option>Low</option>
-            <option>Medium</option>
-            <option>High</option>
-            <option>Critical</option>
-          </select>
-        </div>
+        <div class="form-group"><label class="form-label">Risk Level *</label><select class="form-control" id="riskLevel"><option>Low</option><option>Medium</option><option>High</option><option>Critical</option></select></div>
+        <div class="form-group"><label class="form-label">Assessment Date</label><input class="form-control" type="date" id="riskDate"></div>
       </div>
-      <div class="form-group">
-        <label class="form-label">Hazard Description *</label>
-        <textarea class="form-control" id="riskHazard" rows="2" placeholder="Describe the identified hazard…"></textarea>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Mitigation Measures</label>
-        <textarea class="form-control" id="riskMitigation" rows="2" placeholder="Controls and actions to reduce risk…"></textarea>
-      </div>
+      <div class="form-group"><label class="form-label">Hazard Description *</label><textarea class="form-control" id="riskHazard" placeholder="Describe the identified hazard…"></textarea></div>
+      <div class="form-group"><label class="form-label">Mitigation Measures</label><textarea class="form-control" id="riskMitigation" placeholder="Controls and actions to reduce risk…"></textarea></div>
       <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">Assessment Date</label>
-          <input class="form-control" type="date" id="riskDate">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Status</label>
-          <select class="form-control" id="riskStatus">
-            <option>Draft</option>
-            <option>Submitted</option>
-            <option>Approved</option>
-            <option>Closed</option>
-          </select>
-        </div>
+        <div class="form-group"><label class="form-label">Assessed By</label><input class="form-control" id="riskAssessedBy" placeholder="Name"></div>
+        <div class="form-group"><label class="form-label">Reviewed By</label><input class="form-control" id="riskReviewedBy" placeholder="Name"></div>
       </div>
+      <div class="form-group"><label class="form-label">Status</label><select class="form-control" id="riskStatus"><option>Draft</option><option>Submitted</option><option>Approved</option><option>Closed</option></select></div>
     </div>
-    <div class="modal-footer">
-      <button class="btn btn-secondary" onclick="closeModal('modalRisk')">Cancel</button>
-      <button class="btn btn-primary" onclick="saveRisk()">Save Assessment</button>
-    </div>
+    <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('modalRisk')">Cancel</button><button class="btn btn-primary" onclick="saveRisk()">Save Assessment</button></div>
   </div>
 </div>
 
 <script>
-// ═══════════════════════════════════════════════════
-// CONFIG – update CLIENT_ID after Azure App Registration
-// ═══════════════════════════════════════════════════
-const CONFIG = {
-  CLIENT_ID: 'YOUR_AZURE_APP_CLIENT_ID',   // ← replace after Azure AD app reg
-  TENANT_ID: 'hctuae.onmicrosoft.com',
-  SITE_URL: 'hctuae.sharepoint.com',
-  SITE_PATH: '/sites/HSSYSTEMWIDELABTASKFORCE',
-  LISTS: {
-    CONSUMABLES: 'Consumables',
-    LOCATIONS:   'Locations',
-    BOOKINGS:    'LabBookings',
-    RISKS:       'RiskAssessments'
-  },
-  SCOPES: ['https://graph.microsoft.com/Sites.ReadWrite.All', 'User.Read']
-};
+const CONFIG={CLIENT_ID:'YOUR_AZURE_APP_CLIENT_ID',TENANT_ID:'hctuae.onmicrosoft.com',SITE_URL:'hctuae.sharepoint.com',SITE_PATH:'/sites/HSSYSTEMWIDELABTASKFORCE',LISTS:{CONSUMABLES:'Consumables',BOOKINGS:'LabBookings',RISKS:'RiskAssessments'}};
+let accessToken=null,currentUser=null,siteId=null,consumablesData=[],bookingsData=[],riskData=[];
 
-// ═══════════════════════════════════════════════════
-// STATE
-// ═══════════════════════════════════════════════════
-let accessToken = null;
-let currentUser = null;
-let siteId = null;
-let consumablesData = [];
-let bookingsData = [];
-let riskData = [];
-
-// ═══════════════════════════════════════════════════
-// INIT
-// ═══════════════════════════════════════════════════
-async function init() {
-  try {
+async function init(){
+  try{
     await microsoftTeams.app.initialize();
-    const context = await microsoftTeams.app.getContext();
-    console.log('Teams context:', context);
-    accessToken = await getTeamsToken();
-    if (!accessToken) throw new Error('No token');
-    await loadCurrentUser();
-    await getSiteId();
-    document.getElementById('loadingScreen').style.display = 'none';
-    document.getElementById('app').style.display = 'flex';
-    loadDashboard();
-  } catch(err) {
-    console.error('Init error:', err);
-    // Fallback: try running outside Teams (for testing)
-    document.getElementById('loadingScreen').style.display = 'none';
-    document.getElementById('app').style.display = 'flex';
-    document.getElementById('userName').textContent = 'Dev Mode';
-    document.getElementById('userAvatar').textContent = 'D';
-    currentUser = { displayName: 'Dev Mode', jobTitle: 'Developer', mail: 'dev@hctuae.ac.ae' };
-    loadDashboard();
+    accessToken=await new Promise(r=>microsoftTeams.authentication.getAuthToken({successCallback:r,failureCallback:e=>{console.error(e);r(null)}}));
+    if(!accessToken)throw new Error('no token');
+    const me=await gf('https://graph.microsoft.com/v1.0/me?$select=displayName,jobTitle,mail');
+    if(me){currentUser=me;const i=me.displayName.split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase();document.getElementById('userName').textContent=me.displayName;document.getElementById('userRole').textContent=me.jobTitle||'HCT Staff';document.getElementById('userAvatar').textContent=i;}
+    const s=await gf(`https://graph.microsoft.com/v1.0/sites/${CONFIG.SITE_URL}:${CONFIG.SITE_PATH}`);
+    if(s)siteId=s.id;
+  }catch(e){
+    console.warn('Dev mode:',e);
+    currentUser={displayName:'Dev User',jobTitle:'Developer'};
+    document.getElementById('userName').textContent='Dev User';document.getElementById('userRole').textContent='Developer';document.getElementById('userAvatar').textContent='DU';
   }
+  document.getElementById('loadingScreen').style.display='none';
+  document.getElementById('app').style.display='flex';
+  loadDashboard();
 }
 
-async function getTeamsToken() {
-  return new Promise((resolve) => {
-    microsoftTeams.authentication.getAuthToken({
-      successCallback: (token) => resolve(token),
-      failureCallback: (err) => { console.error('Token error:', err); resolve(null); }
-    });
-  });
+async function gf(url,opts={}){
+  if(!accessToken)return null;
+  try{
+    const r=await fetch(url,{...opts,headers:{'Authorization':'Bearer '+accessToken,'Content-Type':'application/json',...(opts.headers||{})}});
+    if(!r.ok){console.error('Graph',r.status,url);return null;}
+    if(r.status===204)return true;
+    return r.json();
+  }catch(e){console.error(e);return null;}
 }
+async function getItems(list){if(!siteId)return[];const r=await gf(`https://graph.microsoft.com/v1.0/sites/${siteId}/lists/${list}/items?expand=fields&$top=999`);return r?r.value.map(i=>({id:i.id,...i.fields})):[];}
+async function createItem(list,data){if(!siteId)return null;return gf(`https://graph.microsoft.com/v1.0/sites/${siteId}/lists/${list}/items`,{method:'POST',body:JSON.stringify({fields:data})});}
+async function updateItem(list,id,data){if(!siteId)return null;return gf(`https://graph.microsoft.com/v1.0/sites/${siteId}/lists/${list}/items/${id}/fields`,{method:'PATCH',body:JSON.stringify(data)});}
+async function deleteItemAPI(list,id){if(!siteId)return null;return gf(`https://graph.microsoft.com/v1.0/sites/${siteId}/lists/${list}/items/${id}`,{method:'DELETE'});}
 
-async function loadCurrentUser() {
-  const r = await graphFetch('https://graph.microsoft.com/v1.0/me?$select=displayName,jobTitle,mail');
-  if (r) {
-    currentUser = r;
-    const initials = r.displayName.split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase();
-    document.getElementById('userName').textContent = r.displayName;
-    document.getElementById('userRole').textContent = r.jobTitle || 'HCT Staff';
-    document.getElementById('userAvatar').textContent = initials;
-  }
-}
-
-async function getSiteId() {
-  const r = await graphFetch(`https://graph.microsoft.com/v1.0/sites/${CONFIG.SITE_URL}:${CONFIG.SITE_PATH}`);
-  if (r) siteId = r.id;
-}
-
-// ═══════════════════════════════════════════════════
-// GRAPH API HELPERS
-// ═══════════════════════════════════════════════════
-async function graphFetch(url, options = {}) {
-  if (!accessToken) return null;
-  try {
-    const r = await fetch(url, {
-      ...options,
-      headers: {
-        'Authorization': `Bearer ${accessToken}`,
-        'Content-Type': 'application/json',
-        ...(options.headers || {})
-      }
-    });
-    if (!r.ok) { console.error('Graph error', r.status, await r.text()); return null; }
-    if (r.status === 204) return true;
-    return await r.json();
-  } catch(e) { console.error('Fetch error:', e); return null; }
-}
-
-async function getListItems(listName, filter = '') {
-  if (!siteId) return [];
-  let url = `https://graph.microsoft.com/v1.0/sites/${siteId}/lists/${listName}/items?expand=fields&$top=999`;
-  if (filter) url += `&$filter=${filter}`;
-  const r = await graphFetch(url);
-  return r ? r.value.map(i => ({ id: i.id, ...i.fields })) : [];
-}
-
-async function createListItem(listName, data) {
-  if (!siteId) return null;
-  const r = await graphFetch(
-    `https://graph.microsoft.com/v1.0/sites/${siteId}/lists/${listName}/items`,
-    { method: 'POST', body: JSON.stringify({ fields: data }) }
-  );
-  return r;
-}
-
-async function updateListItem(listName, itemId, data) {
-  if (!siteId) return null;
-  const r = await graphFetch(
-    `https://graph.microsoft.com/v1.0/sites/${siteId}/lists/${listName}/items/${itemId}/fields`,
-    { method: 'PATCH', body: JSON.stringify(data) }
-  );
-  return r;
-}
-
-async function deleteListItem(listName, itemId) {
-  if (!siteId) return null;
-  const r = await graphFetch(
-    `https://graph.microsoft.com/v1.0/sites/${siteId}/lists/${listName}/items/${itemId}`,
-    { method: 'DELETE' }
-  );
-  return r;
-}
-
-// ═══════════════════════════════════════════════════
-// DASHBOARD
-// ═══════════════════════════════════════════════════
-async function loadDashboard() {
-  consumablesData = await getListItems(CONFIG.LISTS.CONSUMABLES);
-  bookingsData = await getListItems(CONFIG.LISTS.BOOKINGS);
-  riskData = await getListItems(CONFIG.LISTS.RISKS);
-
-  const today = new Date().toISOString().slice(0, 10);
-  const lowStock = consumablesData.filter(i => (i.Quantity || 0) < (i.MinStock || 0));
-  const todayBookings = bookingsData.filter(i => (i.BookingDate || '').slice(0, 10) === today);
-  const openRisks = riskData.filter(i => i.Status !== 'Closed' && i.Status !== 'Approved');
-
-  document.getElementById('statTotal').textContent = consumablesData.length;
-  document.getElementById('statLow').textContent = lowStock.length;
-  document.getElementById('statBookings').textContent = todayBookings.length;
-  document.getElementById('statRisks').textContent = openRisks.length;
-
-  if (lowStock.length > 0) {
-    document.getElementById('lowStockBadge').style.display = '';
-    document.getElementById('lowStockBadge').textContent = lowStock.length;
-  }
-
-  const tbody = document.getElementById('alertsTable');
-  if (lowStock.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="5"><div class="empty-state"><div class="empty-icon">✅</div><p>All stock levels are adequate</p></div></td></tr>`;
-  } else {
-    tbody.innerHTML = lowStock.map(i => `
-      <tr>
-        <td>${i.Title || '—'}</td>
-        <td>${i.Category || '—'}</td>
-        <td><strong>${i.Quantity ?? '—'}</strong></td>
-        <td>${i.MinStock ?? '—'}</td>
-        <td><span class="badge badge-red">⚠ Low Stock</span></td>
-      </tr>
-    `).join('');
-  }
-}
-
-// ═══════════════════════════════════════════════════
-// CONSUMABLES
-// ═══════════════════════════════════════════════════
-async function loadConsumables() {
-  consumablesData = await getListItems(CONFIG.LISTS.CONSUMABLES);
-  renderConsumables(consumablesData);
-}
-
-function renderConsumables(data) {
-  const tbody = document.getElementById('consumablesTable');
-  if (!data.length) {
-    tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><div class="empty-icon">🧪</div><p>No consumables found. Add your first item.</p></div></td></tr>`;
-    return;
-  }
-  tbody.innerHTML = data.map(i => {
-    const low = (i.Quantity || 0) < (i.MinStock || 0);
-    const badge = low
-      ? `<span class="badge badge-red">Low Stock</span>`
-      : `<span class="badge badge-green">OK</span>`;
-    return `<tr>
-      <td><strong>${i.Title || '—'}</strong></td>
-      <td>${i.Category || '—'}</td>
-      <td>${i.Quantity ?? '—'}</td>
-      <td>${i.Unit || '—'}</td>
-      <td>${i.MinStock ?? '—'}</td>
-      <td>${i.Location || '—'}</td>
-      <td>${badge}</td>
-      <td>
-        <button class="btn btn-sm btn-secondary" onclick="editConsumable('${i.id}')">Edit</button>
-        <button class="btn btn-sm btn-danger" onclick="deleteItem('consumable','${i.id}','${(i.Title||'').replace(/'/g,'\\\'')}')" style="margin-left:4px">Del</button>
-      </td>
-    </tr>`;
+async function loadDashboard(){
+  consumablesData=await getItems(CONFIG.LISTS.CONSUMABLES);
+  bookingsData=await getItems(CONFIG.LISTS.BOOKINGS);
+  riskData=await getItems(CONFIG.LISTS.RISKS);
+  const today=new Date(),todayStr=today.toISOString().slice(0,10);
+  const in30=new Date(today);in30.setDate(in30.getDate()+30);
+  const lowStock=consumablesData.filter(i=>(i.Quantity||0)<(i.MinStock||0));
+  const expiring=consumablesData.filter(i=>{if(!i.ExpiryDate)return false;const e=new Date(i.ExpiryDate);return e<=in30&&e>=today;});
+  const expired=consumablesData.filter(i=>i.ExpiryDate&&new Date(i.ExpiryDate)<today);
+  const todayB=bookingsData.filter(i=>(i.BookingDate||'').slice(0,10)===todayStr);
+  const openR=riskData.filter(i=>i.Status!=='Closed'&&i.Status!=='Approved');
+  const alerts=[...new Map([...lowStock,...expiring,...expired].map(i=>[i.id,i])).values()];
+  document.getElementById('statTotal').textContent=consumablesData.length;
+  document.getElementById('statLow').textContent=lowStock.length;
+  document.getElementById('statExpiring').textContent=expiring.length+expired.length;
+  document.getElementById('statBookings').textContent=todayB.length;
+  document.getElementById('statRisks').textContent=openR.length;
+  document.getElementById('lowStockBadge').style.display=lowStock.length?'':'none';
+  document.getElementById('lowStockBadge').textContent=lowStock.length;
+  const tbody=document.getElementById('alertsTable');
+  if(!alerts.length){tbody.innerHTML='<tr><td colspan="8"><div class="empty-state"><div class="empty-icon">✅</div><p>All stock levels are adequate</p></div></td></tr>';return;}
+  tbody.innerHTML=alerts.map(i=>{
+    const isExp=i.ExpiryDate&&new Date(i.ExpiryDate)<today;
+    const isExpiring=i.ExpiryDate&&new Date(i.ExpiryDate)<=in30&&!isExp;
+    const isLow=(i.Quantity||0)<(i.MinStock||0);
+    const badge=isExp?'<span class="badge badge-red">Expired</span>':isExpiring?'<span class="badge badge-yellow">Expiring Soon</span>':isLow?'<span class="badge badge-red">Low Stock</span>':'';
+    return`<tr><td><strong>${i.Title||'—'}</strong></td><td>${i.Category||'—'}</td><td>${i.Campus||'—'}</td><td>${i.LabName||'—'}</td><td>${i.Quantity??'—'}</td><td>${i.MinStock??'—'}</td><td class="${isExp?'expiry-expired':isExpiring?'expiry-warning':''}">${fmtDate(i.ExpiryDate)}</td><td>${badge}</td></tr>`;
   }).join('');
 }
 
-function openModal(type, id = null) {
-  if (type === 'consumable') {
-    document.getElementById('consumableId').value = '';
-    document.getElementById('consumableName').value = '';
-    document.getElementById('consumableQty').value = '';
-    document.getElementById('consumableMin').value = '';
-    document.getElementById('consumableLocation').value = '';
-    document.getElementById('consumableNotes').value = '';
-    document.getElementById('consumableModalTitle').textContent = 'Add Consumable Item';
-    document.getElementById('modalConsumable').classList.add('open');
-  } else if (type === 'booking') {
-    document.getElementById('bookingId').value = '';
-    document.getElementById('bookingPurpose').value = '';
-    document.getElementById('bookingDate').value = new Date().toISOString().slice(0,10);
-    document.getElementById('bookingStart').value = '08:00';
-    document.getElementById('bookingEnd').value = '10:00';
-    document.getElementById('bookingNotes').value = '';
-    document.getElementById('bookingModalTitle').textContent = 'New Lab Booking';
-    document.getElementById('modalBooking').classList.add('open');
-  } else if (type === 'risk') {
-    document.getElementById('riskId').value = '';
-    document.getElementById('riskTitle').value = '';
-    document.getElementById('riskHazard').value = '';
-    document.getElementById('riskMitigation').value = '';
-    document.getElementById('riskDate').value = new Date().toISOString().slice(0,10);
-    document.getElementById('riskModalTitle').textContent = 'New Risk Assessment';
-    document.getElementById('modalRisk').classList.add('open');
+async function loadConsumables(){consumablesData=await getItems(CONFIG.LISTS.CONSUMABLES);renderConsumables(consumablesData);}
+function renderConsumables(data){
+  const tbody=document.getElementById('consumablesTable'),today=new Date();
+  if(!data.length){tbody.innerHTML='<tr><td colspan="13"><div class="empty-state"><div class="empty-icon">🧪</div><p>No consumables found.</p></div></td></tr>';return;}
+  tbody.innerHTML=data.map(i=>{
+    const low=(i.Quantity||0)<(i.MinStock||0),isExp=i.ExpiryDate&&new Date(i.ExpiryDate)<today;
+    const badge=isExp?'<span class="badge badge-red">Expired</span>':low?'<span class="badge badge-red">Low Stock</span>':'<span class="badge badge-green">OK</span>';
+    return`<tr><td><strong>${i.Title||'—'}</strong></td><td>${i.Category||'—'}</td><td>${i.Campus||'—'}</td><td>${i.Program||'—'}</td><td>${i.LabName||'—'}</td><td>${i.Quantity??'—'}</td><td>${i.Unit||'—'}</td><td>${i.MinStock??'—'}</td><td>${i.Supplier||'—'}</td><td class="${isExp?'expiry-expired':''}">${fmtDate(i.ExpiryDate)}</td><td>${i.LotNumber||'—'}</td><td>${badge}</td><td style="white-space:nowrap"><button class="btn btn-sm btn-secondary" onclick="openConsumableModal('${i.id}')">Edit</button> <button class="btn btn-sm btn-danger" onclick="deleteItem('consumable','${i.id}','${(i.Title||'').replace(/'/g,"\\'")}')">Del</button></td></tr>`;
+  }).join('');
+}
+function applyFilters(){
+  const campus=document.getElementById('filterCampus').value.toLowerCase();
+  const cat=document.getElementById('filterCategory').value.toLowerCase();
+  const q=document.getElementById('consumableSearch').value.toLowerCase();
+  renderConsumables(consumablesData.filter(i=>(!campus||(i.Campus||'').toLowerCase()===campus)&&(!cat||(i.Category||'').toLowerCase()===cat)&&(!q||JSON.stringify(i).toLowerCase().includes(q))));
+}
+
+function openConsumableModal(id=null){
+  ['consumableId','consumableName','consumableQty','consumableMinStock','consumableLocation','consumableNotes','consumableSupplier','consumableLotNumber','consumableExpiry','consumableLastUpdated','consumableProgram','consumableLabName'].forEach(f=>{const el=document.getElementById(f);if(el)el.value='';});
+  document.getElementById('consumableCampus').value='';document.getElementById('consumableDivision').value='';
+  document.getElementById('consumableModalTitle').textContent='Add Consumable Item';
+  if(id){
+    const i=consumablesData.find(x=>x.id===id);if(!i)return;
+    document.getElementById('consumableId').value=id;
+    document.getElementById('consumableName').value=i.Title||'';
+    document.getElementById('consumableCategory').value=i.Category||'PPE';
+    document.getElementById('consumableUnit').value=i.Unit||'Pcs';
+    document.getElementById('consumableQty').value=i.Quantity||0;
+    document.getElementById('consumableMinStock').value=i.MinStock||0;
+    document.getElementById('consumableCampus').value=i.Campus||'';
+    document.getElementById('consumableDivision').value=i.Division||'';
+    document.getElementById('consumableProgram').value=i.Program||'';
+    document.getElementById('consumableLabName').value=i.LabName||'';
+    document.getElementById('consumableLocation').value=i.Location||'';
+    document.getElementById('consumableSupplier').value=i.Supplier||'';
+    document.getElementById('consumableLotNumber').value=i.LotNumber||'';
+    document.getElementById('consumableExpiry').value=(i.ExpiryDate||'').slice(0,10);
+    document.getElementById('consumableLastUpdated').value=(i.LastUpdated||'').slice(0,10);
+    document.getElementById('consumableNotes').value=i.Notes||'';
+    document.getElementById('consumableModalTitle').textContent='Edit Item';
   }
-}
-
-function closeModal(id) {
-  document.getElementById(id).classList.remove('open');
-}
-
-async function saveConsumable() {
-  const id = document.getElementById('consumableId').value;
-  const name = document.getElementById('consumableName').value.trim();
-  if (!name) { showToast('Item name is required', 'error'); return; }
-  const data = {
-    Title: name,
-    Category: document.getElementById('consumableCategory').value,
-    Quantity: parseInt(document.getElementById('consumableQty').value) || 0,
-    Unit: document.getElementById('consumableUnit').value,
-    MinStock: parseInt(document.getElementById('consumableMin').value) || 0,
-    Location: document.getElementById('consumableLocation').value,
-    Notes: document.getElementById('consumableNotes').value
-  };
-  let ok;
-  if (id) { ok = await updateListItem(CONFIG.LISTS.CONSUMABLES, id, data); }
-  else { ok = await createListItem(CONFIG.LISTS.CONSUMABLES, data); }
-  if (ok) {
-    closeModal('modalConsumable');
-    showToast(id ? 'Item updated' : 'Item added', 'success');
-    loadConsumables();
-  } else {
-    showToast('Save failed – check permissions', 'error');
-  }
-}
-
-function editConsumable(id) {
-  const item = consumablesData.find(i => i.id === id);
-  if (!item) return;
-  document.getElementById('consumableId').value = id;
-  document.getElementById('consumableName').value = item.Title || '';
-  document.getElementById('consumableCategory').value = item.Category || 'PPE';
-  document.getElementById('consumableQty').value = item.Quantity || 0;
-  document.getElementById('consumableUnit').value = item.Unit || 'Pcs';
-  document.getElementById('consumableMin').value = item.MinStock || 0;
-  document.getElementById('consumableLocation').value = item.Location || '';
-  document.getElementById('consumableNotes').value = item.Notes || '';
-  document.getElementById('consumableModalTitle').textContent = 'Edit Item';
   document.getElementById('modalConsumable').classList.add('open');
 }
 
-// ═══════════════════════════════════════════════════
-// BOOKINGS
-// ═══════════════════════════════════════════════════
-async function loadBookings() {
-  bookingsData = await getListItems(CONFIG.LISTS.BOOKINGS);
-  renderBookings(bookingsData);
+async function saveConsumable(){
+  const id=document.getElementById('consumableId').value;
+  const name=document.getElementById('consumableName').value.trim();
+  if(!name){showToast('Item name is required','error');return;}
+  const data={Title:name,Category:document.getElementById('consumableCategory').value,Unit:document.getElementById('consumableUnit').value,Quantity:parseInt(document.getElementById('consumableQty').value)||0,MinStock:parseInt(document.getElementById('consumableMinStock').value)||0,Campus:document.getElementById('consumableCampus').value,Division:document.getElementById('consumableDivision').value,Program:document.getElementById('consumableProgram').value,LabName:document.getElementById('consumableLabName').value,Location:document.getElementById('consumableLocation').value,Supplier:document.getElementById('consumableSupplier').value,LotNumber:document.getElementById('consumableLotNumber').value,Notes:document.getElementById('consumableNotes').value,LastUpdated:document.getElementById('consumableLastUpdated').value||new Date().toISOString().slice(0,10)};
+  const exp=document.getElementById('consumableExpiry').value;if(exp)data.ExpiryDate=exp;
+  const ok=id?await updateItem(CONFIG.LISTS.CONSUMABLES,id,data):await createItem(CONFIG.LISTS.CONSUMABLES,data);
+  if(ok){closeModal('modalConsumable');showToast(id?'Item updated':'Item added','success');loadConsumables();}
+  else showToast('Save failed – Azure AD permissions needed','error');
 }
 
-function renderBookings(data) {
-  const tbody = document.getElementById('bookingsTable');
-  if (!data.length) {
-    tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><div class="empty-icon">📅</div><p>No bookings yet.</p></div></td></tr>`;
-    return;
-  }
-  tbody.innerHTML = data.map(i => {
-    const statusBadge = {
-      'Approved': 'badge-green', 'Pending': 'badge-yellow',
-      'Rejected': 'badge-red', 'Completed': 'badge-gray'
-    }[i.Status] || 'badge-blue';
-    return `<tr>
-      <td><strong>${i.LabName || '—'}</strong></td>
-      <td>${i.Purpose || '—'}</td>
-      <td>${formatDate(i.BookingDate)}</td>
-      <td>${i.StartTime || ''} – ${i.EndTime || ''}</td>
-      <td>${i.BookedBy || currentUser?.displayName || '—'}</td>
-      <td><span class="badge ${statusBadge}">${i.Status || '—'}</span></td>
-      <td>
-        <button class="btn btn-sm btn-secondary" onclick="editBooking('${i.id}')">Edit</button>
-        <button class="btn btn-sm btn-danger" onclick="deleteItem('booking','${i.id}','')" style="margin-left:4px">Del</button>
-      </td>
-    </tr>`;
-  }).join('');
+async function loadBookings(){bookingsData=await getItems(CONFIG.LISTS.BOOKINGS);renderBookings(bookingsData);}
+function renderBookings(data){
+  const tbody=document.getElementById('bookingsTable');
+  if(!data.length){tbody.innerHTML='<tr><td colspan="9"><div class="empty-state"><div class="empty-icon">📅</div><p>No bookings yet.</p></div></td></tr>';return;}
+  tbody.innerHTML=data.map(i=>{const sb={Approved:'badge-green',Pending:'badge-yellow',Rejected:'badge-red',Completed:'badge-gray'}[i.Status]||'badge-blue';return`<tr><td><strong>${i.LabName||'—'}</strong></td><td>${i.Purpose||'—'}</td><td>${fmtDate(i.BookingDate)}</td><td>${i.StartTime||''}–${i.EndTime||''}</td><td>${i.Campus||'—'}</td><td>${i.Program||'—'}</td><td>${i.BookedBy||currentUser?.displayName||'—'}</td><td><span class="badge ${sb}">${i.Status||'—'}</span></td><td style="white-space:nowrap"><button class="btn btn-sm btn-secondary" onclick="editBooking('${i.id}')">Edit</button> <button class="btn btn-sm btn-danger" onclick="deleteItem('booking','${i.id}','')">Del</button></td></tr>`;}).join('');
 }
+function openBookingModal(){['bookingId','bookingPurpose','bookingProgram','bookingStudents','bookingNotes'].forEach(f=>document.getElementById(f).value='');document.getElementById('bookingDate').value=new Date().toISOString().slice(0,10);document.getElementById('bookingStart').value='08:00';document.getElementById('bookingEnd').value='10:00';document.getElementById('bookingStatus').value='Pending';document.getElementById('bookingModalTitle').textContent='New Lab Booking';document.getElementById('modalBooking').classList.add('open');}
+function editBooking(id){const i=bookingsData.find(x=>x.id===id);if(!i)return;document.getElementById('bookingId').value=id;document.getElementById('bookingCampus').value=i.Campus||'Abu Dhabi';document.getElementById('bookingLab').value=i.LabName||'Biology Lab A';document.getElementById('bookingPurpose').value=i.Purpose||'';document.getElementById('bookingProgram').value=i.Program||'';document.getElementById('bookingDate').value=(i.BookingDate||'').slice(0,10);document.getElementById('bookingStart').value=i.StartTime||'';document.getElementById('bookingEnd').value=i.EndTime||'';document.getElementById('bookingStudents').value=i.NumberOfStudents||'';document.getElementById('bookingStatus').value=i.Status||'Pending';document.getElementById('bookingNotes').value=i.Notes||'';document.getElementById('bookingModalTitle').textContent='Edit Booking';document.getElementById('modalBooking').classList.add('open');}
+async function saveBooking(){const id=document.getElementById('bookingId').value;const purpose=document.getElementById('bookingPurpose').value.trim();if(!purpose){showToast('Purpose is required','error');return;}const lab=document.getElementById('bookingLab').value;const data={Title:`${lab} – ${purpose}`,LabName:lab,Campus:document.getElementById('bookingCampus').value,Purpose:purpose,Program:document.getElementById('bookingProgram').value,BookingDate:document.getElementById('bookingDate').value,StartTime:document.getElementById('bookingStart').value,EndTime:document.getElementById('bookingEnd').value,NumberOfStudents:parseInt(document.getElementById('bookingStudents').value)||0,Status:document.getElementById('bookingStatus').value,Notes:document.getElementById('bookingNotes').value,BookedBy:currentUser?.displayName||''};const ok=id?await updateItem(CONFIG.LISTS.BOOKINGS,id,data):await createItem(CONFIG.LISTS.BOOKINGS,data);if(ok){closeModal('modalBooking');showToast(id?'Booking updated':'Booking created','success');loadBookings();}else showToast('Save failed – Azure AD permissions needed','error');}
 
-async function saveBooking() {
-  const id = document.getElementById('bookingId').value;
-  const lab = document.getElementById('bookingLab').value;
-  const purpose = document.getElementById('bookingPurpose').value.trim();
-  if (!purpose) { showToast('Purpose is required', 'error'); return; }
-  const data = {
-    Title: `${lab} – ${purpose}`,
-    LabName: lab,
-    Purpose: purpose,
-    BookingDate: document.getElementById('bookingDate').value,
-    StartTime: document.getElementById('bookingStart').value,
-    EndTime: document.getElementById('bookingEnd').value,
-    Status: document.getElementById('bookingStatus').value,
-    Notes: document.getElementById('bookingNotes').value,
-    BookedBy: currentUser?.displayName || ''
-  };
-  let ok;
-  if (id) { ok = await updateListItem(CONFIG.LISTS.BOOKINGS, id, data); }
-  else { ok = await createListItem(CONFIG.LISTS.BOOKINGS, data); }
-  if (ok) {
-    closeModal('modalBooking');
-    showToast(id ? 'Booking updated' : 'Booking created', 'success');
-    loadBookings();
-  } else {
-    showToast('Save failed – check permissions', 'error');
-  }
+async function loadRisk(){riskData=await getItems(CONFIG.LISTS.RISKS);renderRisk(riskData);}
+function renderRisk(data){
+  const tbody=document.getElementById('riskTable');
+  if(!data.length){tbody.innerHTML='<tr><td colspan="9"><div class="empty-state"><div class="empty-icon">⚠️</div><p>No risk assessments yet.</p></div></td></tr>';return;}
+  tbody.innerHTML=data.map(i=>{const rb={Low:'badge-green',Medium:'badge-yellow',High:'badge-red',Critical:'badge-red'}[i.RiskLevel]||'badge-gray';const sb={Approved:'badge-green',Draft:'badge-gray',Submitted:'badge-blue',Closed:'badge-gray'}[i.Status]||'badge-gray';return`<tr><td><strong>${i.Title||'—'}</strong></td><td>${i.LabName||'—'}</td><td>${i.Campus||'—'}</td><td>${(i.HazardDescription||'—').slice(0,50)}${(i.HazardDescription||'').length>50?'…':''}</td><td><span class="badge ${rb}">${i.RiskLevel||'—'}</span></td><td>${i.AssessedBy||'—'}</td><td>${fmtDate(i.AssessmentDate)}</td><td><span class="badge ${sb}">${i.Status||'—'}</span></td><td style="white-space:nowrap"><button class="btn btn-sm btn-secondary" onclick="editRisk('${i.id}')">Edit</button> <button class="btn btn-sm btn-danger" onclick="deleteItem('risk','${i.id}','')">Del</button></td></tr>`;}).join('');
 }
+function openRiskModal(){['riskId','riskTitle','riskHazard','riskMitigation','riskAssessedBy','riskReviewedBy'].forEach(f=>document.getElementById(f).value='');document.getElementById('riskDate').value=new Date().toISOString().slice(0,10);document.getElementById('riskLevel').value='Low';document.getElementById('riskStatus').value='Draft';document.getElementById('riskAssessedBy').value=currentUser?.displayName||'';document.getElementById('riskModalTitle').textContent='New Risk Assessment';document.getElementById('modalRisk').classList.add('open');}
+function editRisk(id){const i=riskData.find(x=>x.id===id);if(!i)return;document.getElementById('riskId').value=id;document.getElementById('riskTitle').value=i.Title||'';document.getElementById('riskCampus').value=i.Campus||'Abu Dhabi';document.getElementById('riskLab').value=i.LabName||'Biology Lab A';document.getElementById('riskHazard').value=i.HazardDescription||'';document.getElementById('riskMitigation').value=i.Mitigation||'';document.getElementById('riskLevel').value=i.RiskLevel||'Low';document.getElementById('riskDate').value=(i.AssessmentDate||'').slice(0,10);document.getElementById('riskAssessedBy').value=i.AssessedBy||'';document.getElementById('riskReviewedBy').value=i.ReviewedBy||'';document.getElementById('riskStatus').value=i.Status||'Draft';document.getElementById('riskModalTitle').textContent='Edit Assessment';document.getElementById('modalRisk').classList.add('open');}
+async function saveRisk(){const id=document.getElementById('riskId').value;const title=document.getElementById('riskTitle').value.trim();if(!title){showToast('Title is required','error');return;}const data={Title:title,Campus:document.getElementById('riskCampus').value,LabName:document.getElementById('riskLab').value,HazardDescription:document.getElementById('riskHazard').value,Mitigation:document.getElementById('riskMitigation').value,RiskLevel:document.getElementById('riskLevel').value,AssessmentDate:document.getElementById('riskDate').value,AssessedBy:document.getElementById('riskAssessedBy').value,ReviewedBy:document.getElementById('riskReviewedBy').value,Status:document.getElementById('riskStatus').value};const ok=id?await updateItem(CONFIG.LISTS.RISKS,id,data):await createItem(CONFIG.LISTS.RISKS,data);if(ok){closeModal('modalRisk');showToast(id?'Assessment updated':'Assessment created','success');loadRisk();}else showToast('Save failed – Azure AD permissions needed','error');}
 
-function editBooking(id) {
-  const item = bookingsData.find(i => i.id === id);
-  if (!item) return;
-  document.getElementById('bookingId').value = id;
-  document.getElementById('bookingLab').value = item.LabName || 'Biology Lab A';
-  document.getElementById('bookingPurpose').value = item.Purpose || '';
-  document.getElementById('bookingDate').value = (item.BookingDate || '').slice(0,10);
-  document.getElementById('bookingStart').value = item.StartTime || '';
-  document.getElementById('bookingEnd').value = item.EndTime || '';
-  document.getElementById('bookingStatus').value = item.Status || 'Pending';
-  document.getElementById('bookingNotes').value = item.Notes || '';
-  document.getElementById('bookingModalTitle').textContent = 'Edit Booking';
-  document.getElementById('modalBooking').classList.add('open');
-}
+async function deleteItem(type,id,name){if(!confirm(`Delete ${name?'"'+name+'"':'this item'}?`))return;const m={consumable:CONFIG.LISTS.CONSUMABLES,booking:CONFIG.LISTS.BOOKINGS,risk:CONFIG.LISTS.RISKS};const ok=await deleteItemAPI(m[type],id);if(ok){showToast('Deleted successfully','success');if(type==='consumable')loadConsumables();else if(type==='booking')loadBookings();else loadRisk();}else showToast('Delete failed','error');}
 
-// ═══════════════════════════════════════════════════
-// RISK ASSESSMENTS
-// ═══════════════════════════════════════════════════
-async function loadRisk() {
-  riskData = await getListItems(CONFIG.LISTS.RISKS);
-  renderRisk(riskData);
-}
-
-function renderRisk(data) {
-  const tbody = document.getElementById('riskTable');
-  if (!data.length) {
-    tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><div class="empty-icon">⚠️</div><p>No risk assessments yet.</p></div></td></tr>`;
-    return;
-  }
-  tbody.innerHTML = data.map(i => {
-    const riskBadge = {
-      'Low': 'badge-green', 'Medium': 'badge-yellow',
-      'High': 'badge-red', 'Critical': 'badge-red'
-    }[i.RiskLevel] || 'badge-gray';
-    const statusBadge = {
-      'Approved': 'badge-green', 'Draft': 'badge-gray',
-      'Submitted': 'badge-blue', 'Closed': 'badge-gray'
-    }[i.Status] || 'badge-gray';
-    return `<tr>
-      <td><strong>${i.Title || '—'}</strong></td>
-      <td>${i.LabName || '—'}</td>
-      <td>${(i.HazardDescription || '—').slice(0, 60)}${(i.HazardDescription||'').length > 60 ? '…' : ''}</td>
-      <td><span class="badge ${riskBadge}">${i.RiskLevel || '—'}</span></td>
-      <td>${i.AssessedBy || currentUser?.displayName || '—'}</td>
-      <td><span class="badge ${statusBadge}">${i.Status || '—'}</span></td>
-      <td>
-        <button class="btn btn-sm btn-secondary" onclick="editRisk('${i.id}')">Edit</button>
-        <button class="btn btn-sm btn-danger" onclick="deleteItem('risk','${i.id}','')" style="margin-left:4px">Del</button>
-      </td>
-    </tr>`;
-  }).join('');
-}
-
-async function saveRisk() {
-  const id = document.getElementById('riskId').value;
-  const title = document.getElementById('riskTitle').value.trim();
-  if (!title) { showToast('Title is required', 'error'); return; }
-  const data = {
-    Title: title,
-    LabName: document.getElementById('riskLab').value,
-    HazardDescription: document.getElementById('riskHazard').value,
-    Mitigation: document.getElementById('riskMitigation').value,
-    RiskLevel: document.getElementById('riskLevel').value,
-    AssessmentDate: document.getElementById('riskDate').value,
-    Status: document.getElementById('riskStatus').value,
-    AssessedBy: currentUser?.displayName || ''
-  };
-  let ok;
-  if (id) { ok = await updateListItem(CONFIG.LISTS.RISKS, id, data); }
-  else { ok = await createListItem(CONFIG.LISTS.RISKS, data); }
-  if (ok) {
-    closeModal('modalRisk');
-    showToast(id ? 'Assessment updated' : 'Assessment created', 'success');
-    loadRisk();
-  } else {
-    showToast('Save failed – check permissions', 'error');
-  }
-}
-
-function editRisk(id) {
-  const item = riskData.find(i => i.id === id);
-  if (!item) return;
-  document.getElementById('riskId').value = id;
-  document.getElementById('riskTitle').value = item.Title || '';
-  document.getElementById('riskLab').value = item.LabName || 'Biology Lab A';
-  document.getElementById('riskHazard').value = item.HazardDescription || '';
-  document.getElementById('riskMitigation').value = item.Mitigation || '';
-  document.getElementById('riskLevel').value = item.RiskLevel || 'Low';
-  document.getElementById('riskDate').value = (item.AssessmentDate || '').slice(0,10);
-  document.getElementById('riskStatus').value = item.Status || 'Draft';
-  document.getElementById('riskModalTitle').textContent = 'Edit Assessment';
-  document.getElementById('modalRisk').classList.add('open');
-}
-
-// ═══════════════════════════════════════════════════
-// DELETE
-// ═══════════════════════════════════════════════════
-async function deleteItem(type, id, name) {
-  const label = name ? `"${name}"` : 'this item';
-  if (!confirm(`Delete ${label}?`)) return;
-  const listMap = { consumable: CONFIG.LISTS.CONSUMABLES, booking: CONFIG.LISTS.BOOKINGS, risk: CONFIG.LISTS.RISKS };
-  const ok = await deleteListItem(listMap[type], id);
-  if (ok) {
-    showToast('Deleted successfully', 'success');
-    if (type === 'consumable') loadConsumables();
-    else if (type === 'booking') loadBookings();
-    else if (type === 'risk') loadRisk();
-  } else {
-    showToast('Delete failed', 'error');
-  }
-}
-
-// ═══════════════════════════════════════════════════
-// NAVIGATION
-// ═══════════════════════════════════════════════════
-const pageTitles = {
-  dashboard: 'Dashboard', consumables: 'Consumables Inventory',
-  utilization: 'Lab Bookings', risk: 'Risk Assessment'
-};
-function showPage(page, el) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  document.getElementById('page-' + page).classList.add('active');
-  if (el) el.classList.add('active');
-  document.getElementById('pageTitle').textContent = pageTitles[page] || page;
-  if (page === 'dashboard') loadDashboard();
-  else if (page === 'consumables') loadConsumables();
-  else if (page === 'utilization') loadBookings();
-  else if (page === 'risk') loadRisk();
-}
-function refreshPage() {
-  const active = document.querySelector('.page.active')?.id?.replace('page-','');
-  if (active) showPage(active, document.querySelector(`.nav-item.active`));
-}
-
-// ═══════════════════════════════════════════════════
-// HELPERS
-// ═══════════════════════════════════════════════════
-function filterTable(tableId, query) {
-  const rows = document.querySelectorAll(`#${tableId} tr`);
-  const q = query.toLowerCase();
-  rows.forEach(row => {
-    row.style.display = row.textContent.toLowerCase().includes(q) ? '' : 'none';
-  });
-}
-function formatDate(str) {
-  if (!str) return '—';
-  try { return new Date(str).toLocaleDateString('en-AE', { day:'2-digit', month:'short', year:'numeric' }); }
-  catch { return str; }
-}
-function showToast(message, type = 'success') {
-  const icons = { success: '✅', error: '❌', warning: '⚠️' };
-  const el = document.createElement('div');
-  el.className = `toast ${type}`;
-  el.innerHTML = `<span>${icons[type]}</span> ${message}`;
-  document.getElementById('toastContainer').appendChild(el);
-  setTimeout(() => el.remove(), 3500);
-}
-
-// Close modals on overlay click
-['modalConsumable','modalBooking','modalRisk'].forEach(id => {
-  document.getElementById(id).addEventListener('click', function(e) {
-    if (e.target === this) closeModal(id);
-  });
-});
-
-// ═══════════════════════════════════════════════════
-// START
-// ═══════════════════════════════════════════════════
+const pageTitles={dashboard:'Dashboard',consumables:'Consumables Inventory',utilization:'Lab Bookings',risk:'Risk Assessment'};
+function showPage(page,el){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));document.getElementById('page-'+page).classList.add('active');if(el)el.classList.add('active');document.getElementById('pageTitle').textContent=pageTitles[page]||page;if(page==='dashboard')loadDashboard();else if(page==='consumables')loadConsumables();else if(page==='utilization')loadBookings();else if(page==='risk')loadRisk();}
+function refreshPage(){const a=document.querySelector('.page.active')?.id?.replace('page-','');if(a)showPage(a,document.querySelector('.nav-item.active'));}
+function filterTable(tid,q){document.querySelectorAll('#'+tid+' tr').forEach(r=>r.style.display=r.textContent.toLowerCase().includes(q.toLowerCase())?'':'none');}
+function fmtDate(s){if(!s)return'—';try{return new Date(s).toLocaleDateString('en-AE',{day:'2-digit',month:'short',year:'numeric'});}catch{return s;}}
+function showToast(msg,type='success'){const icons={success:'✅',error:'❌',warning:'⚠️'};const el=document.createElement('div');el.className=`toast ${type}`;el.innerHTML=`<span>${icons[type]}</span> ${msg}`;document.getElementById('toastContainer').appendChild(el);setTimeout(()=>el.remove(),3500);}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+['modalConsumable','modalBooking','modalRisk'].forEach(id=>document.getElementById(id).addEventListener('click',function(e){if(e.target===this)closeModal(id);}));
 init();
 </script>
 </body>
